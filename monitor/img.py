@@ -64,9 +64,9 @@ def alert():
     window = tkinter.Tk()
     window.title("Changed1")
     window.geometry("300x150+100+100")
-    window.configure(background="red")
+    window.configure(background="blue")
     window.resizable(False, False)
-    label = tkinter.Label(window, text="Site changed", background="red")
+    label = tkinter.Label(window, text="Site changed", background="blue")
     label.pack()
     window.mainloop()
 
@@ -78,5 +78,5 @@ if __name__ == '__main__':
     # img2 = '/Users/jimmy/test/3.png'
     score = compare(img1, img2)
     print("score =", score)
-    if compare(img1, img2) < 70:
+    if compare(img1, img2) < 98:
         alert()
