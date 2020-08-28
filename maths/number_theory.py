@@ -1,3 +1,4 @@
+import itertools
 def xgcd(a, b):
     """
     a * x + b * y = gcd
@@ -28,6 +29,48 @@ def mul_inverse_mod(n, p):
             'modulo {}'.format(n, p))
     else:
         return x % p
+
+def _calc_high_deg(irr_coef, bb):
+    aa = irr_coef[:]
+    r = []
+    for i, c in enumerate(bb):
+        if i > 0:
+            aa.insert(0, 0)
+        r.append([x * c for x in aa])
+    r = [sum(x) for x in itertools.zip_longest(*r, fillvalue=0)]
+    # print(r)
+    return r
+
+def poly_mul(a, b, irr_coef, mod):
+    low_coefs = []
+    irr_len = len(irr_coef)
+
+    # 하위 deg실행
+    aa = a[:]
+    bb = b[:]
+    r = []
+    for i, c in enumerate(bb):
+        if i > 0:  # for j in range(i):
+            aa.insert(0, 0)
+        r.append([x * c for x in aa])
+    # print(r)
+    r = [sum(x) for x in itertools.zip_longest(*r, fillvalue=0)]
+    low_coefs.append(r[0:irr_len])
+
+    # 초과 deg실행
+    while len(r) > irr_len:
+        # print('xxxx')
+        r = _calc_high_deg(irr_coef, r[irr_len:])
+        low_coefs.append(r[0:irr_len])
+    if mod:
+        return [sum(x) % mod for x in itertools.zip_longest(*low_coefs, fillvalue=0)]
+    else:
+        return [sum(x) for x in itertools.zip_longest(*low_coefs, fillvalue=0)]
+
+
+
+# r = fmul([7, 10, 0],[3, 9, 6],[7,10,0], 11 )
+#r = poly_mul([1, 1, 1], [2, 2, 2], [7, 10, 1], 5)
 
 
 class FQP():
