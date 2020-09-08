@@ -8,7 +8,7 @@ from maths.number_theory import *
 def p22():
     print(inspect.stack()[0][3], '>>>>>')
     ec = FEC([1, 1, 0, 1], 101)
-    points = ec.find_point(make_f(101))
+    points = ec.find_point(make_field(101))
     print('points : ', points)
     print('order : ', len(points))
 
@@ -16,48 +16,48 @@ def p22():
         pts = []
         pts.append((0, 0))
         for i in range(1, 106):
-            new_pt = ec.fmultiply(pt, i)
+            new_pt = ec.multiply(pt, i)
             if new_pt is None:
                 break
             pts.append(new_pt)
         return pts
 
     print('order 1  [105](47,12)  >>')
-    pts = _subgroups(ec.fmultiply((47, 12), 105))
+    pts = _subgroups(ec.multiply((47, 12), 105))
     print('order: ', len(pts), 'sub: ', pts)
-
+    print('------------')
     print('order 3  [35](47,12)  >>')
-    pts = _subgroups(ec.fmultiply((47, 12), 35))
+    pts = _subgroups(ec.multiply((47, 12), 35))
     print('order: ', len(pts), 'sub: ', pts)
-
+    print('------------')
     print('order 5  [21](47,12)  >>')
-    pts = _subgroups(ec.fmultiply((47, 12), 21))
+    pts = _subgroups(ec.multiply((47, 12), 21))
     print('order: ', len(pts), 'sub: ', pts)
-
+    print('------------')
     print('order 7  [15](47,12)  >>')
-    pts = _subgroups(ec.fmultiply((47, 12), 15))
+    pts = _subgroups(ec.multiply((47, 12), 15))
     print('order: ', len(pts), 'sub: ', pts)
-
+    print('------------')
     print('order 15  [7](47,12)  >>')
-    pts = _subgroups(ec.fmultiply((47, 12), 7))
+    pts = _subgroups(ec.multiply((47, 12), 7))
     print('order: ', len(pts), 'sub: ', pts)
-
+    print('------------')
     print('order 21  [5](47,12)  >>')
-    pts = _subgroups(ec.fmultiply((47, 12), 5))
+    pts = _subgroups(ec.multiply((47, 12), 5))
     print('order: ', len(pts), 'sub: ', pts)
-
+    print('------------')
     print('order 35  [3](47,12)  >>')
-    pts = _subgroups(ec.fmultiply((47, 12), 3))
+    pts = _subgroups(ec.multiply((47, 12), 3))
     print('order: ', len(pts), 'sub: ', pts)
-
+    print('------------')
     print('order 105  [1](47,12)  >>')
-    pts = _subgroups(ec.fmultiply((47, 12), 1))
+    pts = _subgroups(ec.multiply((47, 12), 1))
     print('order: ', len(pts), 'sub: ', pts)
 
 def p26():
     print(inspect.stack()[0][3], '>>>>>')
     ec = FEC([3, 4, 0, 1], 67)
-    points = ec.find_point(make_f(67))
+    points = ec.find_point(make_field(67))
     print('points : ', points)
     print('order : ', len(points))
 
@@ -82,7 +82,7 @@ def p26():
 def p29():
     print(inspect.stack()[0][3], '>>>>>')
     ec = FEC([1, 1, 0, 1], 101)
-    points = ec.find_point(make_f(101))
+    points = ec.find_point(make_field(101))
 
     print('r=2, y = solve_poly([4, 4, 0, 4], x) % 101')
     roots_x = []
@@ -110,77 +110,202 @@ def p29():
     for pt in points:
         if pt[0] == 28:
             print(pt)
-p29()
 
-# http://matrix.etseq.urv.es/manuals/matlab/toolbox/comm/tutor33.html
+def p37():
+    print(inspect.stack()[0][3], '>>>>>')
+    ec = FEC([20, 20, 0, 1], 103)
+    points = ec.find_point(make_field(103))
+    print('points : ', points)
+    print('order : ', len(points))
 
+    P = (26, 20)
+    Q = (63, 78)
+    R = (59, 95)
+    S = (24, 25)
+    T = (77, 84)
+    U = (30, 99)
+    assert ec.fadd(R, T) == U
+    print(ec.fadd(ec.fadd(P, Q), ec.fadd(neg(R), neg(S))))  # (18,49)
+    print(ec.fadd(ec.fadd(P, Q), ec.fadd(neg(R), neg(T))))  # None
 
+def p38():
+    print(inspect.stack()[0][3], '>>>>>')
+    ec = FEC([1, 8, 0, 1], 61)
+    points = ec.find_point(make_field(61))
+    print('points : ', points)
+    print('order : ', len(points))
 
-# ec = FEC([4, 0, 0, 1], 11)
-# ec.find_point(make_a_bi(11))
-# #[(0j, (2+0j)), (0j, (9+0j)), (2j, (4+10j)), (2j, (7+1j)), (4j, (3+4j)), (4j, (8+7j)), (7j, (3+7j)), (7j, (8+4j)), (9j, (4+1j)), (9j, (7+10j)), ((1+0j), (4+0j)), ((1+0j), (7+0j)), ((1+2j), (3+7j)), ((1+2j), (8+4j)), ((1+3j), (3+8j)), ((1+3j), (8+3j)), ((1+5j), 2j), ((1+5j), 9j), ((1+6j), 2j), ((1+6j), 9j), ((1+8j), (3+3j)), ((1+8j), (8+8j)), ((1+9j), (3+4j)), ((1+9j), (8+7j)), ((2+0j), (1+0j)), ((2+0j), (10+0j)), ((2+1j), 4j), ((2+1j), 7j), ((2+2j), (2+4j)), ((2+2j), (9+7j)), ((2+5j), (3+2j)), ((2+5j), (8+9j)), ((2+6j), (3+9j)), ((2+6j), (8+2j)), ((2+9j), (2+7j)), ((2+9j), (9+4j)), ((2+10j), 4j), ((2+10j), 7j), ((3+0j), (3+0j)), ((3+0j), (8+0j)), ((3+1j), (3+8j)), ((3+1j), (8+3j)), ((3+3j), (3+9j)), ((3+3j), (8+2j)), ((3+4j), 5j), ((3+4j), 6j), ((3+7j), 5j), ((3+7j), 6j), ((3+8j), (3+2j)), ((3+8j), (8+9j)), ((3+10j), (3+3j)), ((3+10j), (8+8j)), ((4+0j), 3j), ((4+0j), 8j), ((4+2j), (3+0j)), ((4+2j), (8+0j)), ((4+4j), (1+9j)), ((4+4j), (10+2j)), ((4+5j), (2+4j)), ((4+5j), (9+7j)), ((4+6j), (2+7j)), ((4+6j), (9+4j)), ((4+7j), (1+2j)), ((4+7j), (10+9j)), ((4+9j), (3+0j)), ((4+9j), (8+0j)), ((5+0j), 5j), ((5+0j), 6j), ((5+1j), (4+1j)), ((5+1j), (7+10j)), ((5+3j), (4+0j)), ((5+3j), (7+0j)), ((5+4j), (2+4j)), ((5+4j), (9+7j)), ((5+5j), (1+4j)), ((5+5j), (10+7j)), ((5+6j), (1+7j)), ((5+6j), (10+4j)), ((5+7j), (2+7j)), ((5+7j), (9+4j)), ((5+8j), (4+0j)), ((5+8j), (7+0j)), ((5+10j), (4+10j)), ((5+10j), (7+1j)), ((6+0j), 0j), ((6+1j), (4+1j)), ((6+1j), (7+10j)), ((6+2j), (3+9j)), ((6+2j), (8+2j)), ((6+3j), (5+0j)), ((6+3j), (6+0j)), ((6+8j), (5+0j)), ((6+8j), (6+0j)), ((6+9j), (3+2j)), ((6+9j), (8+9j)), ((6+10j), (4+10j)), ((6+10j), (7+1j)), ((7+0j), 4j), ((7+0j), 7j), ((7+1j), (1+7j)), ((7+1j), (10+4j)), ((7+2j), 1j), ((7+2j), 10j), ((7+4j), (3+3j)), ((7+4j), (8+8j)), ((7+7j), (3+8j)), ((7+7j), (8+3j)), ((7+9j), 1j), ((7+9j), 10j), ((7+10j), (1+4j)), ((7+10j), (10+7j)), ((8+0j), 1j), ((8+0j), 10j), ((8+1j), (1+2j)), ((8+1j), (10+9j)), ((8+4j), 0j), ((8+7j), 0j), ((8+10j), (1+9j)), ((8+10j), (10+2j)), ((9+0j), 2j), ((9+0j), 9j), ((9+1j), 3j), ((9+1j), 8j), ((9+10j), 3j), ((9+10j), 8j), ((10+0j), (5+0j)), ((10+0j), (6+0j)), ((10+2j), (3+7j)), ((10+2j), (8+4j)), ((10+3j), (1+2j)), ((10+3j), (10+9j)), ((10+4j), (1+7j)), ((10+4j), (10+4j)), ((10+5j), (1+0j)), ((10+5j), (10+0j)), ((10+6j), (1+0j)), ((10+6j), (10+0j)), ((10+7j), (1+4j)), ((10+7j), (10+7j)), ((10+8j), (1+9j)), ((10+8j), (10+2j)), ((10+9j), (3+4j)), ((10+9j), (8+7j))]
-# # order3인 cyclic (8,1j), (8,10j), none
-# print(fmultiply((8,1j), 1, a=0, mod=11))
-# print(fmultiply((8,1j), 2, a=0, mod=11))
-# print(fmultiply((8,1j), 3, a=0, mod=11))
-# print('----')
-# print(fmultiply((8,10j), 1, a=0, mod=11))
-# print(fmultiply((8,10j), 2, a=0, mod=11))
-# print(fmultiply((8,10j), 3, a=0, mod=11))
-# print('----')
-# # order3인 cyclic (0,2), (0,9), none
-# print(fmultiply((0, 2), 1, a=0, mod=11))
-# print(fmultiply((0, 2), 2, a=0, mod=11))
-# print(fmultiply((0, 2), 3, a=0, mod=11))
-# print('----')
-# print(fmultiply((0, 9), 1, a=0, mod=11))
-# print(fmultiply((0, 9), 2, a=0, mod=11))
-# print(fmultiply((0, 9), 3, a=0, mod=11))
-# print('----')
-#
-#
-# ec = FEC([13, 0, 0, 1], 31)
-# points = ec.find_point(make_f(31))
-# print('points len =', len(points) +1)
-# print(points)
-# print('----')
-# print(ec.fmultiply((1,18), 1 ))
-# print(ec.fmultiply((1,18), 2 ))
-# print(ec.fmultiply((1,18), 3 ))
-# print(ec.fmultiply((1,18), 4 ))
-# print(ec.fmultiply((1,18), 5 ))
-# print('----')
-# #덧셈에 닫혀있는지 확인
-# #(1, 18) (12, 25) (12, 6) (1, 13) None
-# print(ec.fadd((1,18), (12,25) ))
-# print(ec.fadd((1, 13), (12,25) ))
-# print('----')
+    P = (57, 24)
+    Q = (25, 37)
+    R = (17, 32)
+    S = (42, 35)
+    print(ec.fadd(ec.fadd(P, Q), R))  # (42,26)
+    print(ec.fadd((42,26), S))  # None
 
-# ec = FEC([2, 7, 0, 1], 11**3)
-# points = ec.find_point(make_f(11**3))
-# print('points len =', len(points) +1)
-# print(points)
-# print('----')
+    assert solve_poly([24, 10, 33], P[0]) % 61 == P[1]
+    assert solve_poly([24, 10, 33], Q[0]) % 61 == Q[1]
+    assert solve_poly([24, 10, 33], R[0]) % 61 == R[1]
+    assert solve_poly([24, 10, 33], S[0]) % 61 == S[1]
+
+def p43():
+    print(inspect.stack()[0][3], '>>>>>')
+    ec = FEC([-2, -1, 0, 1], 163)
+    points = ec.find_point(make_field(163))
+    print('points : ', points)
+    print('order : ', len(points))
+
+    P = (43, 154)
+    Q = (46, 38)
+    R = (12, 35)
+    S = (5, 66)
+    # print(ec.fadd(ec.fadd(P, Q), R))  # (42,26)
+    # print(ec.fadd((42,26), S))  # None
+
+    assert solve_poly([-85, -93], P[0]) % 163 == P[1]
+    assert solve_poly([-90, -127], P[0]) % 163 == P[1]
+    assert solve_poly([-16, -13], Q[0]) % 163 == Q[1]
+
+    #l_p_q(D1)
+    print((solve_poly([85, 93], R[0]) + R[1])**2 * (solve_poly([85, 93], S[0]) + S[1])**1 %163)
+    #l_p_p(D2)  53
+    print((solve_poly([90, 127], R[0]) + R[1])**3 * inv((solve_poly([90, 127], S[0]) + S[1])**3,163) %163)
+    #2l_p_p(D2) 53
+    print((solve_poly([2*90, 2*127], R[0]) + 2*R[1])**3 * inv((solve_poly([2*90, 2*127], S[0]) + 2*S[1])**3,163) %163)
+
+def p44():
+    print(inspect.stack()[0][3], '>>>>>')
+    ec = FEC([1, 0, 0, 1], 503)
+    points = ec.find_point(make_field(503))
+    print('points : ', points)
+    print('order : ', len(points))
+
+    def inv(n, p):
+        if n == 0:
+            raise ZeroDivisionError('division by zero')
+        gcd, x, y = xgcd(n, p)
+        # assert (n * x + p * y) % p == gcd
+        # (n * x) % p == 1.
+
+        if gcd != 1:
+            # Either n is 0, or p is not a prime number.
+            raise ValueError(
+                '{} has no multiplicative inverse '
+                'modulo {}'.format(n, p))
+        else:
+            return x % p
+
+    for pt in points:
+        try:
+            if (20*pt[1]+9*pt[0]+179) * inv(199*pt[1]+187*pt[0]+359, 503) % 503 == 0:
+                print(pt)
+        except:
+            print('err', pt)
+    print('g:')
+    for pt in points:
+        if solve_poly([201, 129, 251], pt[0])*(-1) % 503 == pt[1]:
+            print(pt)
+
+def p48():
+    print(inspect.stack()[0][3], '>>>>>')
+    mod = 7691
+    field = PolyField([1, 0, 1], mod)
+    ec = FEC([1, 0, 0, 1], mod, field)
+
+    P = [2693, 4312]
+    Q = ((6145, 633), (109, 7372))
+    assert ec.multiply(P, 641) == None
+    assert ec.multiply(Q, 641) == None
+    a = 403
+    b = 135
+    print('[a]P')
+    print(ec.multiply(P, a))
+    print('[b]Q')
+    print(ec.multiply(Q, b))
+    print(field.pow((5677, 6744), a))  # [7025, 3821]
+    print(field.pow((5677, 6744), b))  # [5, 248]
+    print(field.pow((5677, 6744), 561))  # [2731, 2719]
+    # a*b%mod = 568 ?
+    print(field.pow((5677, 6744), a*b%mod))  # [6363, 4914]
+
+def p51():
+    print(inspect.stack()[0][3], '>>>>>')
+    ec = FEC([4, 0, 0, 1], 11)
+    points = ec.find_point(make_a_bi(11))
+    print(points)
+
+    print('order3인 cyclic (8,1j), (8,10j), none')
+    print(ec.multiply((8,1j), 1))
+    print(ec.multiply((8,1j), 2))
+    print(ec.multiply((8,1j), 3))
+    print('----')
+    print(ec.multiply((8,10j), 1))
+    print(ec.multiply((8,10j), 2))
+    print(ec.multiply((8,10j), 3))
+    print('----')
+    print('order3인 cyclic (0,2), (0,9), none')
+    print(ec.multiply((0,2), 1))
+    print(ec.multiply((0,2), 2))
+    print(ec.multiply((0,2), 3))
+    print('----')
+    print(ec.multiply((0,9), 1))
+    print(ec.multiply((0,9), 2))
+    print(ec.multiply((0,9), 3))
+    print('----')
+
+def p52():
+    print(inspect.stack()[0][3], '>>>>>')
+    ec = FEC([13, 0, 0, 1], 31)
+    points = ec.find_point(make_field(31))
+    print('points len =', len(points) +1)
+    print(points)
+
+    print(ec.multiply((1,18), 1 ))
+    print(ec.multiply((1,18), 2 ))
+    print(ec.multiply((1,18), 3 ))
+    print(ec.multiply((1,18), 4 ))
+    print(ec.multiply((1,18), 5 ))
+    print('----')
+    #덧셈에 닫혀있는지 확인
+    #(1, 18) (12, 25) (12, 6) (1, 13) None
+    print(ec.add((1,18), (12,25) ))
+    print(ec.add((1, 13), (12,25) ))
+    print('----')
+
+# def p53():
+#     print(inspect.stack()[0][3], '>>>>>')
+#     mod = 11
+#     field = PolyField([4,1,0,1], mod)
+#     f_11 = field.elements()
+#     print(f_11[384]) #[5, 9, 1]
+#     print(f_11[778]) # [0, 3, 4]
+#     for i, x in enumerate(f_11):
+#         if x == [1,5,6]:
+#             print(i)
+#     print(len(f_11))
+#     print(f_11[0])
+#     print(f_11[481])
+#     print(f_11[113])
+#     for i, x in enumerate(f_11):
+#         if x == [1,5,6]:
+#             print(i)
+#     print(f_11[87])
+#     print(f_11[1049])
+#     for i, x in enumerate(f_11):
+#         if x == [8,2,2]:
+#             print(i)
+#     # ec = FEC([2, 7, 0, 1], 11, [4,1,0,1])
+#     # points = ec.find_point(make_field(11**3))
+#     # print('points len =', len(points) +1)
+#     # print(points)
+#     # print('----')
+#     print(1049*2 % 1330, 384*2% 1330)
+p52()
+
 
 
 # fmul([7, 10, 0],[3, 9, 6],[7,10,0], 11 )
 # print(fmul([7, 10, 0],[3, 9, 6],[7,10,0], 11 ))
-'''
-  f = fields[i][:]
-        f.insert(0,0)
-        ms = f.pop(irr_len)
-        if ms != 0:
-            # 최상위 deg의 값이 0이 아니면 하위 deg 식으로 변환 후 식을 더한다.
-            # [ms * irr_coef[0], ms * irr_coef[1], ...] + f
-            new_field = []
-            zip_object = zip([x * ms for x in irr_coef], f)
-            for a, b in zip_object:
-                new_field.append(a + b)
-            fields.append([x % mod for x in new_field])
-        else:
-            fields.append([x % mod for x in f])
 
-'''
 
 
 # print(f_11[384]) #[5, 9, 1]
