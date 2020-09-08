@@ -56,13 +56,15 @@ class PolyField():
     def mul(self, a, b):
         if isinstance(a, int):
             return [x * a for x in b]
+        if isinstance(b, int):
+            return [x * b for x in a]
 
         low_coefs = []
         irr_len = len(self.irr_coef)
 
         # 하위 deg실행
-        aa = a[:]
-        bb = b[:]
+        aa = list(a[:])
+        bb = list(b[:])
         r = []
         for i, c in enumerate(bb):
             if i > 0:  # for j in range(i):
@@ -91,12 +93,18 @@ class PolyField():
         return [sum(x) for x in itertools.zip_longest(*r, fillvalue=0)]
 
     def add(self, a, b):
-        return [sum(x) for x in zip(a,b)]
+        if isinstance(a, int):
+            a = [a]
+        if isinstance(b, int):
+            b = [b]
+        return [sum(x) % self.mod for x in itertools.zip_longest(a,b, fillvalue=0)]
 
     def sub(self, a, b):
-        for i, c in enumerate(a):
-            a[i] = (a[i] - b[i]) % self.mod
-        return a
+        aa = list(a[:])
+        bb = list(b[:])
+        for i, c in enumerate(aa):
+            aa[i] = (aa[i] - bb[i]) % self.mod
+        return aa
 
     @staticmethod
     def neg(a):
@@ -141,8 +149,9 @@ class PolyField():
                 r.pop()
         # old_r[0]이 1이 아닌경우는 old_r[0]으로 나눠야 한다.
         old_s_inv = mul_inverse_mod(old_r[0], self.mod)
-        result = [ x % 3 for x in self.poly_mul2(old_s, [old_s_inv])]
-        return result + ([0]* (self.mod - len(result)))
+        #result = [ x % 3 for x in self.poly_mul2(old_s, [old_s_inv])]
+        result = [x % self.mod for x in self.poly_mul2(old_s, [old_s_inv])]
+        return result + ([0]* (len(self.irr_coef) - len(result)))
 
     def elements(self):
         irr_len = len(self.irr_coef)
@@ -166,6 +175,8 @@ class PolyField():
             self.fields = fields
         return self.fields
     def pow(self, a, n):
+        if n == 0:
+            return [1] + [0]*(len(a)-1)
         x = a[:]
         for i in range(n-1):
             x = self.mul(x, a)
