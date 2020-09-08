@@ -5,6 +5,18 @@ class TestPolyField(unittest.TestCase):
     def test_mul(self):
         field = PolyField([4, 1, 0, 1], 11)
         self.assertEqual(field.mul([1, 1, 1], [2, 2, 2]), [8,3,4])
+        self.assertEqual(field.mul([1], [2, 2, 2]), [2, 2, 2])
+
+    def test_add(self):
+        # x^3+2x+1 역순
+        field = PolyField([1,2,0,1], 3)
+        self.assertEqual(field.add([1], [1,1,1]), [2, 1, 1])
+
+    # https://math.stackexchange.com/questions/124300/finding-inverse-of-polynomial-in-a-field
+    def test_inv(self):
+        # x^3+2x+1 역순
+        field = PolyField([1,2,0,1], 3)
+        self.assertEqual(field.inv([1,0,1]), [2,1,2])
 
     def test_elements(self):
         # x^3+2x+1 역순
