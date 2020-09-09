@@ -309,7 +309,54 @@ class FEC():
         else:
             return finite_add(pt1, pt2, a=self.coefficients[1], mod=self.mod)
 
+    #Frobenius endomorphism π
+    def frobEndPi(self, pt, i=1):
+        if isinstance(pt[0], list) or isinstance(pt[0], tuple):
+            x = self.poly_field.pow(pt[0], self.mod ** i)
+            y = self.poly_field.pow(pt[1], self.mod ** i)
+            return (x,y)
+        else:
+            x = pow(pt[0], self.mod ** i, self.mod)
+            y = pow(pt[1], self.mod ** i, self.mod)
+            return (x,y)
+
+    #  trace map
+    def Tr(self, pt):
+        new_points = list(pt[:])
+        if isinstance(pt[0], list) or isinstance(pt[0], tuple):
+            for i in range(1, len(pt[0]), 1):
+                new_points = self.add(new_points, self.frobEndPi(pt,i))
+            return new_points
+        else:
+            pass
 '''
 itertools.zip_longest(*iterables, fillvalue=None)
 출처: https://excelsior-cjh.tistory.com/100 [EXCELSIOR]
+'''
+
+
+'''
+def Tr2(pt,ec):
+    new_points = list(pt[:])
+    # new_points = [(0,0,0), (0,0,0)]
+    for i in range(1, len(pt[0]), 1):
+        x = ec.poly_field.pow(pt[0], ec.mod**i)
+        y = ec.poly_field.pow(pt[1], ec.mod**i)
+        # print(x,y)
+        # print(new_points)
+        new_points = ec.add(new_points, [x,y])
+    return new_points
+def Tr2(pt,ec):
+    new_points = list(pt[:])
+    # new_points = [(0,0,0), (0,0,0)]
+    for i in range(1, len(pt[0]), 1):
+        x = ec.poly_field.pow(pt[0], ec.mod**i)
+        y = ec.poly_field.pow(pt[1], ec.mod**i)
+        # print(x,y)
+        # print(new_points)
+        new_points = ec.add(new_points, [x,y])
+    return new_points
+If E is defined over Fq, then the Frobenius endomorphism π is defined as
+π : E → E, (x,y) 􏰀→ (xq,yq).
+
 '''
