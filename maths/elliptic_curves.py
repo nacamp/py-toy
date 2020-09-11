@@ -115,6 +115,8 @@ def finite_double(pt, a, mod):
     y2 = 2 * y
     if isinstance(y2, complex):
         l = (3 * x ** 2 + a) * complex(y2.real, -y2.imag) * mul_inverse_mod((y2 * complex(y2.real, -y2.imag)).real, mod)
+        # 이곳에서 %를 안해주면 결과값이 다르게 나올수 있다?
+        l = complex(l.real % mod, l.imag % mod)
     else:
         l = (3 * x ** 2 + a) * mul_inverse_mod(y2, mod)
     newx = l ** 2 - 2 * x
