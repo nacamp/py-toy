@@ -162,6 +162,11 @@ def finite_add(p1, p2, a, mod):
         newy = newy % mod
     return newx, newy
 
+def finite_neg(pt):
+    if pt is None:
+        return None
+    x, y = pt
+    return (x, -y)
 
 def finite_multiply(pt, n, a, mod):
     if n == 0:
@@ -209,6 +214,10 @@ def poly_add(p1, p2, a, field):
     newy = field.sub (field.add(field.mul(field.neg(l) ,newx) , field.mul(l,x1 )) , y1)
     return newx, newy
 
+def poly_neg(pt):
+    if pt is None:
+        return None
+    return (pt[0], [x*(-1) for x in pt[1]])
 
 def poly_multiply(pt, n, a, field):
     if n == 0:
@@ -310,6 +319,12 @@ class FEC():
             return poly_add(pt1, pt2, a=self.coefficients[1], field=self.poly_field)
         else:
             return finite_add(pt1, pt2, a=self.coefficients[1], mod=self.mod)
+
+    def neg(self, pt1):
+        if isinstance(pt1[0], list) or isinstance(pt1[0], tuple):
+            return poly_neg(pt1)
+        else:
+            return finite_neg(pt1)
 
     #Frobenius endomorphism π
     def frobEndPi(self, pt, i=1):
