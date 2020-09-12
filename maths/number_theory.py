@@ -1,4 +1,12 @@
 import itertools
+
+def int_divisor(a):
+    results = []
+    for i in range(2,a+1):
+        if a % i == 0:
+            results.append(i)
+    return results
+
 def xgcd(a, b):
     """
     a * x + b * y = gcd
@@ -55,9 +63,9 @@ class PolyField():
 
     def mul(self, a, b):
         if isinstance(a, int):
-            return [x * a for x in b]
+            return [x * a % self.mod for x in b]
         if isinstance(b, int):
-            return [x * b for x in a]
+            return [x * b % self.mod for x in a]
 
         low_coefs = []
         irr_len = len(self.irr_coef)
