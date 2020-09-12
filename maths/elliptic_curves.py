@@ -333,8 +333,25 @@ class FEC():
             y = self.poly_field.pow(pt[1], self.mod ** i)
             return (x,y)
         else:
-            x = pow(pt[0], self.mod ** i, self.mod)
-            y = pow(pt[1], self.mod ** i, self.mod)
+            if isinstance(pt[0], complex):
+                x = complex(1)
+                for i in range(self.mod ** i):
+                    x = x * pt[0]
+                    x = complex(x.real % self.mod, x.imag % self.mod)
+                # overflow ...
+                # x = pow(pt[0], self.mod ** i)
+                # x = complex(x.real % self.mod, x.imag % self.mod)
+            else:
+                x = pow(pt[0], self.mod ** i, self.mod)
+            if isinstance(pt[1], complex):
+                y = complex(1)
+                for i in range(self.mod ** i):
+                    y = y * pt[1]
+                    y = complex(y.real % self.mod, y.imag % self.mod)
+                # y = pow(pt[1], self.mod ** i)
+                # y = complex(y.real % self.mod, y.imag % self.mod)
+            else:
+                y = pow(pt[1], self.mod ** i, self.mod)
             return (x,y)
 
     #  trace map
