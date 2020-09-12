@@ -5,6 +5,42 @@ from maths.number_theory import *
 
 # https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjhiuXAzbzrAhWzL6YKHQohB1oQFjAAegQIBBAB&url=http%3A%2F%2Fwww.craigcostello.com.au%2Fpairings%2FPairingsForBeginners.pdf&usg=AOvVaw1H5dLtelG00vWsvWRGxBNZ
 # ParingsForBeginners.pdf
+
+def subgroups(pt,ec, order_size):
+    pts = []
+    pts.append((0, 0))
+    for i in range(1, order_size+1):
+        new_pt = ec.multiply(pt, i)
+        if new_pt is None:
+            break
+        pts.append(new_pt)
+    return pts
+
+def find_k(q, r):
+    for k in range(1, q):
+        if (q ** k - 1) % r == 0:
+            return k
+            # print('r=', r, ' k=', k)
+            # break
+
+def find_r(points, ec, candidate_r):
+    results = []
+    for r in candidate_r:
+        sub_group = []
+        for pt in points[1:]:
+            for i in range(1,len(points)+1,1):
+                try:
+                    if ec.multiply(pt, i) == None and i == r:
+                        sub_group.append(pt)
+                        break
+                except:
+                    #print(pt, i, 'err')
+                    break;
+        if len(sub_group) + 1 == r:
+            print('r=', r, sub_group)
+            results.append(r)
+    return results
+
 def p22():
     print(inspect.stack()[0][3], '>>>>>')
     ec = FEC([1, 1, 0, 1], 101)
@@ -56,28 +92,24 @@ def p22():
 
 def p26():
     print(inspect.stack()[0][3], '>>>>>')
-    ec = FEC([3, 4, 0, 1], 67)
-    points = ec.find_point(make_field(67))
-    print('points : ', points)
-    print('order : ', len(points))
+    P1 = (15,50)
+    P2 = ((16, 2), (39, 30))
+    P3 = ((8, 4, 15), (21, 30, 44))
 
-    print('(15^67, )', pow(15,67, 67))
-    # u^2+1=0
-    field = PolyField([1, 0, 1], 67)
-    #((16,2)^67,)
-    #print(field.pow([16,2], 67))
-    #((39, 30)^ 67,)
-    print(field.pow([39, 30], 67))
+    mod = 67
+    ec = FEC([3, 4, 0, 1], mod)
+    print(ec.frobEndPi(P1))
 
-    # u^3+2=0
-    field = PolyField([2, 0, 0,1], 67)
-    #(8, 4, 15)^67
-    print(field.pow([8, 4, 15], 67))
-    # (8, 4, 15)^67^2
-    print(field.pow([8, 4, 15], 67*67))
-    # (8, 4, 15)^67^2
+    field = PolyField([1, 0, 1], mod)
+    ec = FEC([3, 4, 0, 1], mod, field)
+    print(ec.frobEndPi(P2))
+    print(ec.frobEndPi(P2,2)) #P2
+
+    field = PolyField([2, 0, 0, 1], mod)
+    ec = FEC([3, 4, 0, 1], mod, field)
+    print(ec.frobEndPi(P3,2))
     # 시간이 오래걸림
-    # print(field.pow([8, 4, 15], 67*67*67))
+    # print(ec.frobEndPi(P3,3)) #P3
 
 def p29():
     print(inspect.stack()[0][3], '>>>>>')
@@ -229,9 +261,34 @@ def p48():
 
 def p51():
     print(inspect.stack()[0][3], '>>>>>')
-    ec = FEC([4, 0, 0, 1], 11)
-    points = ec.find_point(make_a_bi(11))
-    print(points)
+    q = mod = 11
+    ec = FEC([4, 0, 0, 1], q)
+    points = ec.find_point(make_field(q))
+    print('points : ', points)
+    print('order : ', len(points))
+    print('----')
+    candidate_r = int_divisor(len(points))
+    # 맞는것지 아직은 미지수
+    rs = find_r(points,ec, candidate_r)
+    r = rs[0]
+    print('k=', find_k(q,r))
+    print('----')
+    print('orders')
+    ec = FEC([4, 0, 0, 1], q)
+    points = ec.find_point(make_a_bi(q))
+    print('points : ', points)
+    print('order : ', len(points))
+    print('----')
+    print('orders')
+    for pt in points[1:]:
+        for i in range(1,145,1):
+            try:
+                if ec.multiply(pt, i) == None and i == r:
+                    print(pt, i)
+                    break
+            except:
+                #print(pt, i, 'err')
+                break;
 
     print('order3인 cyclic (8,1j), (8,10j), none')
     print(ec.multiply((8,1j), 1))
@@ -252,13 +309,30 @@ def p51():
     print(ec.multiply((0,9), 3))
     print('----')
 
+    r = 3
+    assert (pow(11,1) - 1) % r != 0
+    assert (pow(11,2) - 1) % r == 0
+
 def p52():
     print(inspect.stack()[0][3], '>>>>>')
     ec = FEC([13, 0, 0, 1], 31)
     points = ec.find_point(make_field(31))
-    print('points len =', len(points) +1)
-    print(points)
+    print('points : ', points)
+    print('order : ', len(points))
+    print('----')
+    print('orders')
+    for pt in points[1:]:
+        for i in range(1,26,1):
+            try:
+                if ec.multiply(pt, i) == None and i == 5:
+                    print(pt, i)
+                    break
+            except:
+                #print(pt, i, 'err')
+                break
 
+    print('----')
+    print('(1,18):')
     print(ec.multiply((1,18), 1 ))
     print(ec.multiply((1,18), 2 ))
     print(ec.multiply((1,18), 3 ))
@@ -271,111 +345,191 @@ def p52():
     print(ec.add((1, 13), (12,25) ))
     print('----')
 
-# def p53():
-#     print(inspect.stack()[0][3], '>>>>>')
-#     mod = 11
-#     field = PolyField([4,1,0,1], mod)
-#     f_11 = field.elements()
-#     print(f_11[384]) #[5, 9, 1]
-#     print(f_11[778]) # [0, 3, 4]
-#     for i, x in enumerate(f_11):
-#         if x == [1,5,6]:
-#             print(i)
-#     print(len(f_11))
-#     print(f_11[0])
-#     print(f_11[481])
-#     print(f_11[113])
-#     for i, x in enumerate(f_11):
-#         if x == [1,5,6]:
-#             print(i)
-#     print(f_11[87])
-#     print(f_11[1049])
-#     for i, x in enumerate(f_11):
-#         if x == [8,2,2]:
-#             print(i)
-#     # ec = FEC([2, 7, 0, 1], 11, [4,1,0,1])
-#     # points = ec.find_point(make_field(11**3))
-#     # print('points len =', len(points) +1)
-#     # print(points)
-#     # print('----')
-#     print(1049*2 % 1330, 384*2% 1330)
-p52()
+def p53():
+    print(inspect.stack()[0][3], '>>>>>')
+    mod = 11
+    ec = FEC([2, 7, 0, 1], mod)
+    points = ec.find_point(make_field(mod))
+    print('points : ', points)
+    print('order : ', len(points))
 
+    field = PolyField([4,1,0,1], mod)
+    f_11_3 = field.elements()
+    # print(f_11_3[481], f_11_3[1049]) # [4, 7, 4],[6, 2, 10]
+    Q = ([4, 7, 4], [6, 2, 10])
+    # print(f_11_3[423], f_11_3[840])  # [7, 8, 4], [4, 9, 7]
+    R = ([7, 8, 4], [4, 9, 7])
+    # print(f_11_3[1011], f_11_3[1244])  # [2, 8, 1], [0, 10, 10]
+    S = ([2, 8, 1], [0, 10, 10])
+    # print(f_11_3[1315], f_11_3[1150])  # [8, 10, 6], [7, 10, 6]
+    T = ([8, 10, 6], [7, 10, 6])
+    ec = FEC([2, 7, 0, 1], mod, field)
+    print('Tr(Q) ', ec.Tr(Q))
+    print('Tr(R) ',ec.Tr(R))
+    print('Tr(S) ',ec.Tr(S))
+    print('Tr(T) = O')
+    print('Tr(T) ', ec.Tr(T))
 
+    #aTr
+    pp =ec.add(ec.multiply(Q,3), ec.neg(ec.Tr(Q)) )
+    for i, c in enumerate(field.elements()):
+        if c == pp[0]:
+            print('x', i)
+        if c == pp[1]:
+            print('y', i)
 
-# fmul([7, 10, 0],[3, 9, 6],[7,10,0], 11 )
-# print(fmul([7, 10, 0],[3, 9, 6],[7,10,0], 11 ))
+    # print(f_11_3[831], f_11_3[949]) #[2, 5, 5], [6, 10, 9]
+    P_831_949 = ([2, 5, 5], [6, 10, 9])
+    pp =ec.add(ec.multiply(P_831_949,3), ec.neg(ec.Tr(P_831_949)) )
+    for i, c in enumerate(field.elements()):
+        if c == pp[0]:
+            print('x', i)
+        if c == pp[1]:
+            print('y', i)
 
+def p56():
+    print(inspect.stack()[0][3], '>>>>>')
+    q = mod = 59
+    ec = FEC([1, 0, 0, 1], q)
+    points = ec.find_point(make_field(mod))
+    print('points : ', points)
+    print('order : ', len(points))
+    if len(points) == (q+1):
+        print('supersingular')
 
+    print('------')
+    print('g1: ')
+    assert ec.frobEndPi((18,46),1) == (18,46)
+    print('g2: ')
+    assert ec.frobEndPi((36,37j),1) != (36,37j)
+    assert ec.frobEndPi((36,37j),2) == (36,37j)
+    print('----')
+    candidate_r = int_divisor(len(points))
+    rs = find_r(points,ec, candidate_r)
+    r = rs[1]
+    print('k=', find_k(q,r))
+    print('----')
+    print(subgroups((36, 37j), ec, 3600 + 1))
+    print(subgroups((1, 36j), ec, 3600 + 1))
+    print(subgroups((36, 22j), ec, 3600 + 1))
+    print(subgroups((1, 23j), ec, 3600 + 1))
+    print('----')
+    cube_root_unity = 24j+29
+    cube_root_unity_3 = pow(cube_root_unity,3)
+    print( complex((cube_root_unity*18).real %q, (cube_root_unity*18).imag%q)) # (50+19j)
+    print(complex((cube_root_unity *36).real % q, (cube_root_unity*36).imag % q)) #(41+38j)
+    assert complex((cube_root_unity_3 * 18).real % q, (cube_root_unity_3 * 18).imag % q) == 18
+    assert complex((cube_root_unity_3 * 36).real % q, (cube_root_unity_3 * 36).imag % q) == 36
 
-# print(f_11[384]) #[5, 9, 1]
-# print(f_11[778]) # [0, 3, 4]
-# #u^481*3 + 7u^481 + 2
-# print(f_11[113]) # [0, 8, 7]
-# print(f_11[481]) # [4, 7, 4]
-# for i, x in enumerate(f_11):
-#     if x == [8,2,2]:
-#         print(i) #768
-# print(f_11[768])
-# print(1049*2 % 1330, 384*2% 1330)
-#
-# #y^2=x^3+0x^2+7x+2
-# ec = FEC([2, 7, 0, 1], 11)
-# x = ec.find_point2(f_11)
-# print(x)
+def p57():
+    print(inspect.stack()[0][3], '>>>>>')
+    q = mod = 59
+    ec = FEC([0, 1, 0, 1], q)
+    points = ec.find_point(make_field(mod))
+    print('points : ', points)
+    print('order : ', len(points))
+    if len(points) == (q+1):
+        print('supersingular')
+    print('----')
+    candidate_r = int_divisor(len(points))
+    rs = find_r(points,ec, candidate_r)
+    r = rs[1]
+    print('k=', find_k(q,r))
+    print('----')
+    print(subgroups((34, 30j), ec, 3600 + 1))
+    print('----')
+    def distortion_map_phi(pt):
+        x = -1*pt[0]
+        y = 1j*pt[1]
+        return ( complex(x.real % q, x.imag % q ) , complex(y.real % q, y.imag % q) )
+    step1 = distortion_map_phi((34, 30j))
+    step2 = distortion_map_phi(step1)
+    print(step1, step2)
+    step1 = distortion_map_phi((31j+51, 34j+49))
+    step2 = distortion_map_phi(step1)
+    step3 = distortion_map_phi(step2)
+    step4 = distortion_map_phi(step3)
+    print(step1, step2, step3, step4)
 
-#TODO: 덧셈, 뺄샘
-# print(len(x))
-# # x^2+2x+2=0 =>  x^2=x+1
-# make_irr_points([1,1], 3)
-# # u^3+u+4=0 =>  u^3=0u^2-u-4=0u^2+10u+7
-# f_11 = make_irr_points([7,10,0], 11)
-# print(len(f_11))
-# print(f_11[0])
-# print(f_11[481])
-# print(f_11[113])
-# for i, x in enumerate(f_11):
-#     if x == [1,5,6]:
-#         print(i)
-# print(f_11[87])
-# print(f_11[1049])
-# for i, x in enumerate(f_11):
-#     if x == [8,2,2]:
-#         print(i)
-    # for a in range(mod):
-    #     for b in range(mod):
-    #         ef.append(complex(a, b))
-    # return ef
-# def make_u3_u_4(mod):
-#     ef = []
-#     for a in range(mod):
-#         for b in range(mod):
-#             ef.append(complex(a, b))
-#     return ef
+def p61():
+    print(inspect.stack()[0][3], '>>>>>')
+    q = mod = 11
+    ec = FEC([4, 0, 0, 1], q)
+    points = ec.find_point(make_field(q))
+    print('points : ', points)
+    print('order : ', len(points))
+    print('----')
+    candidate_r = int_divisor(len(points))
+    # 맞는것지 아직은 미지수
+    rs = find_r(points,ec, candidate_r)
+    r = rs[0]
+    print('k=', find_k(q,r))
+    print('----')
 
-# find_point_in_curve([2, 0, 0, 1], 7)
-# #E(F7) = {∞, (0, 3), (0, 4), (3, 1), (3, 6), (5, 1), (5, 6), (6, 1), (6, 6)}.
-# print(multiply((5, 6), 6, a=0, mod=7))
-# print(add((5, 6),(5, 6), a=0, mod=7))
+    ec1 = FEC([-4, 0, 0, 1], q)
+    points1 = ec1.find_point(make_field(q))
+    print('points : ', points1)
+    print('order : ', len(points1))
+    print('----')
 
-# # y2 = x3+20x+20
-# find_point_in_curve([20, 20, 0, 1], 103)
-# print(muli_add([(26, 20),(63, 78),(59, -95),(24, -25)], a=20, mod=103))
-# print(muli_add([(26, 20),(63, 78),(59, -95),(77, -84)], a=20, mod=103))
-#
-# #x3+8x+1 F61
-# print(muli_add([(57,24),(25,37),(17,32),(42,35)], a=8, mod=61))
-#
-# #y2=x3-x-2
-# find_point_in_curve([-2, -1, 0, 1], 163)
+    def psi_inv(pt):
+        x = pt[0]*(-1)
+        y = pt[1]*1j
+        return (complex(x.real % q, x.imag % q), complex(y.real % q, y.imag % q))
 
-# print('y2=x3+4')
-# find_point_in_curve([4, 0, 0, 1], 11)
+    print(psi_inv((8, 1j)))
+    print(psi_inv((8, 10j)))
 
-# print(multiply((0, 2), 3, a=0, mod=11))
-# print(multiply((10, 5), 2, a=0, mod=11))
+    def psi(pt):
+        x = pt[0]*(-1)
+        y = pt[1]*1j*(-1)
+        return (complex(x.real % q, x.imag % q), complex(y.real % q, y.imag % q))
 
+    print(psi((3, 10)))
+    print(psi((3, 1)))
 
-# R = (12,35) and S = (5,66)
-# lP,Q(D1) = (yR + 93xR + 85)2(yS + 93xS + 85) = 122
-# Consider E/F163 : y2 = x3 − x − 2, with P = (43,154), Q = (46,38), R = (12,35) and S = (5,66) all on E.
+def p62():
+    print(inspect.stack()[0][3], '>>>>>')
+    q = mod = 103
+    ec = FEC([72, 0, 0, 1], q)
+    points = ec.find_point(make_field(q))
+    print('points : ', points)
+    print('order : ', len(points))
+    print('----')
+    field = PolyField([2, 0, 0, 0, 0, 0, 1], q)
+    ec = FEC([72, 0, 0, 1], q, field)
+    print(subgroups(([0, 0, 0, 0, 35, 0], [0, 0, 0, 42, 0, 0]), ec, 7))
+    print('----')
+    print('y^2 = x^3 + 72u^6')
+    # u^6+2=0, u^6 = -2
+    ec = FEC([72*(-2), 0, 0, 1], q)
+    points = ec.find_point(make_field(q))
+    print('points : ', points)
+    print('order : ', len(points))
+    print(subgroups((33,19), ec, 7))
+
+    print('psi_inv')
+    def psi_inv(pt):
+        x = field.mul([0, 0, 1], pt[0])
+        y = field.mul([0, 0, 0, 1], pt[1])
+        return(x,y)
+
+    print('(35u^4,42u^3):')
+    print(psi_inv(([0, 0, 0, 0, 35, 0], [0, 0, 0, 42, 0, 0])))
+    print('(65u^4,61u^3):')
+    print(psi_inv(([0, 0, 0, 0, 65, 0], [0, 0, 0, 61, 0, 0])))
+    #58u^5+81u^4....
+    print(psi_inv(([8, 49, 66, 99, 81, 58], [71, 65, 66, 14, 23, 8])))
+
+    print('psi')
+    def psi(pt):
+        x = field.mul( field.inv([0, 0, 1]), pt[0])
+        y = field.mul(field.inv([0, 0, 0, 1]), pt[1])
+        return(x,y)
+
+    print('(33,19):')
+    print(psi((33,19)))
+    print('(76,84):')
+    print(psi((76,84)))
+
+p62()
