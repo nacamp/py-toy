@@ -113,6 +113,8 @@ def find_point_in_curve2(coefficients, mod, ef):
 def finite_double(pt, a, mod):
     x, y = pt
     y2 = 2 * y
+    if y2 == 0:
+        return None
     if isinstance(y2, complex):
         l = (3 * x ** 2 + a) * complex(y2.real, -y2.imag) * mul_inverse_mod((y2 * complex(y2.real, -y2.imag)).real, mod)
         # 이곳에서 %를 안해주면 결과값이 다르게 나올수 있다?
