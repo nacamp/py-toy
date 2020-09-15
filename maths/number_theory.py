@@ -1,11 +1,13 @@
 import itertools
 
+
 def int_divisor(a):
     results = []
-    for i in range(2,a+1):
+    for i in range(2, a + 1):
         if a % i == 0:
             results.append(i)
     return results
+
 
 def xgcd(a, b):
     """
@@ -21,6 +23,7 @@ def xgcd(a, b):
         old_s, s = s, old_s - quotient * s
         old_t, t = t, old_t - quotient * t
     return old_r, old_s, old_t
+
 
 ##### modular #######
 def mul_inverse_mod(n, p):
@@ -38,7 +41,9 @@ def mul_inverse_mod(n, p):
     else:
         return x % p
 
+
 inv = mul_inverse_mod
+
 
 ##### polynomial operation #####
 class PolyField():
@@ -89,7 +94,6 @@ class PolyField():
             low_coefs.append(r[0:irr_len])
         return [sum(x) % self.mod for x in itertools.zip_longest(*low_coefs, fillvalue=0)]
 
-
     def poly_mul2(self, a, b):
         aa = a[:]
         bb = b[:]
@@ -105,7 +109,7 @@ class PolyField():
             a = [a]
         if isinstance(b, int):
             b = [b]
-        return [sum(x) % self.mod for x in itertools.zip_longest(a,b, fillvalue=0)]
+        return [sum(x) % self.mod for x in itertools.zip_longest(a, b, fillvalue=0)]
 
     def sub(self, a, b):
         aa = list(a[:])
@@ -140,6 +144,7 @@ class PolyField():
     #TODO: 코드 정리
     https://math.stackexchange.com/questions/124300/finding-inverse-of-polynomial-in-a-field
     '''
+
     def inv(self, a):
         """
         a * x + b * y = gcd
@@ -150,16 +155,19 @@ class PolyField():
 
         while sum(r) != 0:
             quotient = self.poly_round_div(old_r, r)
-            old_r, r = r, [sum(x) % self.mod for x in itertools.zip_longest(old_r, [x * (-1) for x in self.poly_mul2(quotient,r)], fillvalue=0)]
-            old_s, s = s, [sum(x) % self.mod for x in itertools.zip_longest(old_s, [x * (-1) for x in self.poly_mul2(quotient,s)], fillvalue=0)]
-            old_t, t = t, [sum(x) % self.mod for x in itertools.zip_longest(old_t, [x * (-1) for x in self.poly_mul2(quotient,t)], fillvalue=0)]
+            old_r, r = r, [sum(x) % self.mod for x in
+                           itertools.zip_longest(old_r, [x * (-1) for x in self.poly_mul2(quotient, r)], fillvalue=0)]
+            old_s, s = s, [sum(x) % self.mod for x in
+                           itertools.zip_longest(old_s, [x * (-1) for x in self.poly_mul2(quotient, s)], fillvalue=0)]
+            old_t, t = t, [sum(x) % self.mod for x in
+                           itertools.zip_longest(old_t, [x * (-1) for x in self.poly_mul2(quotient, t)], fillvalue=0)]
             while len(r) and r[-1] == 0:
                 r.pop()
         # old_r[0]이 1이 아닌경우는 old_r[0]으로 나눠야 한다.
         old_s_inv = mul_inverse_mod(old_r[0], self.mod)
-        #result = [ x % 3 for x in self.poly_mul2(old_s, [old_s_inv])]
+        # result = [ x % 3 for x in self.poly_mul2(old_s, [old_s_inv])]
         result = [x % self.mod for x in self.poly_mul2(old_s, [old_s_inv])]
-        return result + ([0]* (len(self.irr_coef) - len(result)))
+        return result + ([0] * (len(self.irr_coef) - len(result)))
 
     def elements(self):
         irr_len = len(self.irr_coef)
@@ -182,13 +190,14 @@ class PolyField():
                     fields.append([x % self.mod for x in f])
             self.fields = fields
         return self.fields
+
     def pow(self, a, n):
         if n == 0:
-            return [1] + [0]*(len(a)-1)
+            return [1] + [0] * (len(a) - 1)
         x = a[:]
-        for i in range(n-1):
+        for i in range(n - 1):
             x = self.mul(x, a)
-        return(x)
+        return (x)
 
 
 def find_sqrt_y(x, y, mod):
@@ -196,12 +205,14 @@ def find_sqrt_y(x, y, mod):
         if sqrt_y ** 2 % mod == y:
             print(x, sqrt_y)
 
+
 def find_sqrt_y(y, mod):
     results = []
     for sqrt_y in range(mod):
         if sqrt_y ** 2 % mod == y:
             results.append(sqrt_y)
     return results
+
 
 # https://en.wikipedia.org/wiki/Quadratic_residue
 # x^2  ~ q (mod n)
@@ -214,8 +225,10 @@ def qr(x_2, mod):
             results.append(x)
     return results
 
+
 def solve_poly(coef, x):
     return sum(c * x ** i for i, c in enumerate(coef))
+
 
 ##### make field #####
 # extension field, irreducible polynomial
@@ -239,12 +252,98 @@ def make_extension_field(irr_coef, mod):
             fields.append([x % mod for x in f])
     return fields
 
+
 def make_field(mod):
     return [i for i in range(mod)]
 
-def make_a_bi(mod):
+
+# def make_a_bi(mod):
+#     ef = []
+#     for a in range(mod):
+#         for b in range(mod):
+#             ef.append(complex(a, b))
+#     return ef
+
+def make_a_bi(mod, multiple=1):
     ef = []
     for a in range(mod):
         for b in range(mod):
-            ef.append(complex(a, b))
+            ef.append(Cpx(a, b, multiple))
     return ef
+
+# Complex
+class Cpx:
+    def __init__(self, r=0, i=0, multiple=1):
+        self.r = r
+        self.i = i
+        self.m = multiple
+
+    def __add__(self, other):
+        if isinstance(other, self.__class__):
+            return Cpx(self.r + other.r, self.i + other.i, self.m)
+        else:
+            return Cpx(self.r + other, self.i, self.m)
+
+    # def __radd__(self, other):
+    #     return self + other
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        if isinstance(other, self.__class__):
+            return Cpx(self.r - other.r, self.i - other.i, self.m)
+        else:
+            return Cpx(self.r - other, self.i, self.m)
+
+    def __rsub__(self, other):
+        if isinstance(other, self.__class__):
+            return Cpx(other.r - self.r, other.i - self.i , self.m)
+        else:
+            return Cpx(other - self.r, (-1)*self.i, self.m)
+
+    def __mul__(self, other):
+        if isinstance(other, self.__class__):
+            return Cpx(self.r * other.r - self.i * other.i * self.m,
+                       self.r * other.i + self.i * other.r, self.m)
+        else:
+            return Cpx(self.r * other, self.i* other, self.m)
+    __rmul__ = __mul__
+
+    def __pow__(self, exp):
+        if exp == 0:
+            return Cpx(1,0, self.m)
+        if exp == 1:
+            return Cpx(self.r, self.i, self.m)
+        cur = Cpx(self.r, self.i, self.m)
+        for i in range(1, exp):
+            cur = cur * Cpx(self.r, self.i, self.m)
+        return cur
+
+    def __mod__(self, mod):
+        return Cpx(self.r % mod, self.i % mod, self.m)
+
+    def __neg__(self):
+        return Cpx( (-1)*self.r, (-1)*self.i, self.m)
+
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.r == other.r and self.i == other.i
+        else:
+            return self.i == 0 and self.r == other
+
+    def __repr__(self):
+        m = '{}+{}i'.format(self.r, self.i)
+        return repr(m)
+
+    def ineg(self):
+        return Cpx(self.r, (-1)*self.i, self.m)
+
+
+# /*
+# a=complex(1+1j)
+# pow(a,2)
+# 2j
+# pow(a,3)
+# (-2+2j)
+# a**3
+# (-2+2j)
