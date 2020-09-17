@@ -110,29 +110,76 @@ def find_point_in_curve2(coefficients, mod, ef):
 # print('y2=x3+4')
 # find_point_in_curve2([4, 0, 0, 1], 11, make_a_bi(11))
 
+# def finite_double(pt, a, mod):
+#     x, y = pt
+#     y2 = 2 * y
+#     if y2 == 0:
+#         return None
+#     if isinstance(y2, complex):
+#         l = (3 * x ** 2 + a) * complex(y2.real, -y2.imag) * mul_inverse_mod((y2 * complex(y2.real, -y2.imag)).real, mod)
+#         # 이곳에서 %를 안해주면 결과값이 다르게 나올수 있다?
+#         l = complex(l.real % mod, l.imag % mod)
+#     else:
+#         l = (3 * x ** 2 + a) * mul_inverse_mod(y2, mod)
+#     newx = l ** 2 - 2 * x
+#     newy = -l * newx + l * x - y
+#     if isinstance(newx, complex):
+#         newx = complex(newx.real % mod, newx.imag % mod)
+#     else:
+#         newx = newx % mod
+#     if isinstance(newy, complex):
+#         newy = complex(newy.real % mod, newy.imag % mod)
+#     else:
+#         newy = newy % mod
+#     return newx, newy
+
 def finite_double(pt, a, mod):
     x, y = pt
     y2 = 2 * y
     if y2 == 0:
         return None
-    if isinstance(y2, complex):
-        l = (3 * x ** 2 + a) * complex(y2.real, -y2.imag) * mul_inverse_mod((y2 * complex(y2.real, -y2.imag)).real, mod)
+    if isinstance(y2, Cpx):
+        l = (3 * x ** 2 + a) * y2.ineg() * mul_inverse_mod((y2*y2.ineg()).r, mod)
         # 이곳에서 %를 안해주면 결과값이 다르게 나올수 있다?
-        l = complex(l.real % mod, l.imag % mod)
+        l = l % mod
+        # l = (3 * x ** 2 + a) * complex(y2.real, -y2.imag) * mul_inverse_mod((y2 * complex(y2.real, -y2.imag)).real, mod)
+        # 이곳에서 %를 안해주면 결과값이 다르게 나올수 있다?
+        # l = complex(l.real % mod, l.imag % mod)
     else:
         l = (3 * x ** 2 + a) * mul_inverse_mod(y2, mod)
     newx = l ** 2 - 2 * x
     newy = -l * newx + l * x - y
-    if isinstance(newx, complex):
-        newx = complex(newx.real % mod, newx.imag % mod)
-    else:
-        newx = newx % mod
-    if isinstance(newy, complex):
-        newy = complex(newy.real % mod, newy.imag % mod)
-    else:
-        newy = newy % mod
-    return newx, newy
+    return newx % mod, newy % mod
 
+# def finite_add(p1, p2, a, mod):
+#     if p1 is None or p2 is None:
+#         return p1 if p2 is None else p2
+#     x1, y1 = p1
+#     x2, y2 = p2
+#     if x2 == x1 and y2 == y1:
+#         return finite_double(p1, a, mod)
+#     elif x2 == x1:
+#         return None
+#     else:
+#         x21 = x2 - x1
+#         if isinstance(x21, complex):
+#             # l = ((y2 - y1)*(x21.real, -x21.imag)) / (x21*(x21.real, -x21.imag))
+#             l = ((y2 - y1) * complex(x21.real, -x21.imag)) * mul_inverse_mod((x21 * complex(x21.real, -x21.imag)).real,
+#                                                                              mod)
+#         else:
+#             l = (y2 - y1) * mul_inverse_mod(x21, mod)
+#     newx = l ** 2 - x1 - x2
+#     newy = -l * newx + l * x1 - y1
+#     # assert newy == (-l * newx + l * x2 - y2)
+#     if isinstance(newx, complex):
+#         newx = complex(newx.real % mod, newx.imag % mod)
+#     else:
+#         newx = newx % mod
+#     if isinstance(newy, complex):
+#         newy = complex(newy.real % mod, newy.imag % mod)
+#     else:
+#         newy = newy % mod
+#     return newx, newy
 
 def finite_add(p1, p2, a, mod):
     if p1 is None or p2 is None:
@@ -145,24 +192,17 @@ def finite_add(p1, p2, a, mod):
         return None
     else:
         x21 = x2 - x1
-        if isinstance(x21, complex):
-            # l = ((y2 - y1)*(x21.real, -x21.imag)) / (x21*(x21.real, -x21.imag))
-            l = ((y2 - y1) * complex(x21.real, -x21.imag)) * mul_inverse_mod((x21 * complex(x21.real, -x21.imag)).real,
-                                                                             mod)
-        else:
-            l = (y2 - y1) * mul_inverse_mod(x21, mod)
+        try:
+            if isinstance(x21, Cpx):
+                # l = ((y2 - y1)*(x21.real, -x21.imag)) / (x21*(x21.real, -x21.imag))
+                l = ((y2 - y1) * x21.ineg()) * mul_inverse_mod((x21 *  x21.ineg()).r, mod)
+            else:
+                l = (y2 - y1) * mul_inverse_mod(x21, mod)
+        except (ValueError, ZeroDivisionError):
+            return None
     newx = l ** 2 - x1 - x2
     newy = -l * newx + l * x1 - y1
-    # assert newy == (-l * newx + l * x2 - y2)
-    if isinstance(newx, complex):
-        newx = complex(newx.real % mod, newx.imag % mod)
-    else:
-        newx = newx % mod
-    if isinstance(newy, complex):
-        newy = complex(newy.real % mod, newy.imag % mod)
-    else:
-        newy = newy % mod
-    return newx, newy
+    return newx % mod, newy % mod
 
 def finite_neg(pt):
     if pt is None:
@@ -245,19 +285,36 @@ class FEC():
             for order, c in enumerate(self.coefficients):
                 y = y + c * pt[0] ** order
             return y % self.mod == pt[1] ** 2 % self.mod
+        elif isinstance(pt[0], Cpx):
+            y = 0
+            for order, c in enumerate(self.coefficients):
+                y = y + c * pt[0] ** order
+            return y % self.mod == pt[1] ** 2 % self.mod
         else:
             y = 0
             for order, c in enumerate(self.coefficients):
                 y = self.poly_field.add( y, self.poly_field.mul(c,self.poly_field.pow(pt[0], order)) )
         return y == self.poly_field.pow(pt[1], 2)
 
+    # def find_point(self, ef):
+    #     points = []
+    #     for x in ef:
+    #         y = 0
+    #         for order, c in enumerate(self.coefficients):
+    #             y = y + c * x ** order
+    #         points += self.find_sqrt_y(x, complex(y.real % self.mod, y.imag % self.mod), ef)
+    #     points.insert(0, (0, 0))
+    #     return points
     def find_point(self, ef):
         points = []
         for x in ef:
             y = 0
             for order, c in enumerate(self.coefficients):
                 y = y + c * x ** order
-            points += self.find_sqrt_y(x, complex(y.real % self.mod, y.imag % self.mod), ef)
+            # if isinstance(y, Cpx):
+            #     points += self.find_sqrt_y(x, y % self.mod, ef)
+            # else:
+            points += self.find_sqrt_y(x, y % self.mod, ef)
         points.insert(0, (0, 0))
         return points
 
@@ -298,25 +355,51 @@ class FEC():
         #             x_y_points.append((x_y2_pt[0], y_exp))
         return x_y_points
 
+    # def find_sqrt_y(self, x, y, ef):
+    #     points = []
+    #     for sqrt_y in ef:
+    #         c = sqrt_y ** 2
+    #         if c.real % self.mod == y.real and c.imag % self.mod == y.imag:
+    #             points.append((x, sqrt_y))
+    #         # if sqrt_y ** 2 % mod == y:
+    #         #     print(x, sqrt_y)
+    #     return points
     def find_sqrt_y(self, x, y, ef):
         points = []
         for sqrt_y in ef:
             c = sqrt_y ** 2
-            if c.real % self.mod == y.real and c.imag % self.mod == y.imag:
+            # if isinstance(y, Cpx):
+            #     c % self.mod
+            #     if c.real % self.mod == y.real and c.imag % self.mod == y.imag:
+            #         points.append((x, sqrt_y))
+            # else:
+            #     pass
+            # c % mod
+            if c % self.mod == y:
                 points.append((x, sqrt_y))
             # if sqrt_y ** 2 % mod == y:
             #     print(x, sqrt_y)
         return points
 
+    # def multiply(self, pt, n):
+    #     if pt is None:
+    #         return None;
+    #     if isinstance(pt[0], list) or isinstance(pt[0], tuple):
+    #         return poly_multiply(pt, n, a=self.coefficients[1], field=self.poly_field)
+    #     else:
+    #         return finite_multiply(pt, n, a=self.coefficients[1], mod=self.mod)
+
     def multiply(self, pt, n):
         if pt is None:
             return None;
-        if isinstance(pt[0], list) or isinstance(pt[0], tuple):
-            return poly_multiply(pt, n, a=self.coefficients[1], field=self.poly_field)
-        else:
+        if isinstance(pt[0], int) or isinstance(pt[0], Cpx):
             return finite_multiply(pt, n, a=self.coefficients[1], mod=self.mod)
+        else:
+            return poly_multiply(pt, n, a=self.coefficients[1], field=self.poly_field)
 
     def add(self, pt1, pt2):
+        if pt1 is None or pt2 is None:
+            return pt1 if pt2 is None else pt2
         if isinstance(pt1[0], list) or isinstance(pt1[0], tuple):
             return poly_add(pt1, pt2, a=self.coefficients[1], field=self.poly_field)
         else:
