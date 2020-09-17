@@ -99,4 +99,18 @@ class TestEllipticCurves(unittest.TestCase):
         print(ec.multiply(((4, 7, 4), (6, 2, 10)), 8))
         self.assertEqual(ec.multiply(((4, 7, 4), (6, 2, 10)), 7 ), None)
 
+    def test_finite_Cpx(self):
+        pt = finite_double((Cpx(8, 0), Cpx(0, 1)), 0, 11)
+        self.assertEqual(pt, (Cpx(8, 0), Cpx(0, 10)))
+        pt = finite_double((Cpx(8, 0), Cpx(0, 10)), 0, 11)
+        self.assertEqual(pt, (Cpx(8, 0), Cpx(0, 1)))
+
+        pt = finite_add((Cpx(8, 0), Cpx(0, 1)), (Cpx(8, 0), Cpx(0, 10)), 0, 11)
+        self.assertEqual(pt, None)
+
+        # self.assertEqual(pt, Cpx(0, 10))
+        # print(ec.multiply((8, 1j), 1))
+        # print(ec.multiply((8, 1j), 2))
+        # print(ec.multiply((8, 1j), 3))
+        #    print(ec.multiply((8,10j), 3))
 #https://docs.python.org/ko/3/library/unittest.html
