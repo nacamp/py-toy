@@ -6,6 +6,37 @@ from maths.number_theory import *
 # https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjhiuXAzbzrAhWzL6YKHQohB1oQFjAAegQIBBAB&url=http%3A%2F%2Fwww.craigcostello.com.au%2Fpairings%2FPairingsForBeginners.pdf&usg=AOvVaw1H5dLtelG00vWsvWRGxBNZ
 # ParingsForBeginners.pdf
 
+def find_cosets(rE,points,ec):
+    r = []
+    for pt in points[1:]:
+        s = set()
+        for i in rE:
+            s.add(ec.add(i, pt))
+        for ss in r:
+            if not s.isdisjoint(ss):
+                s = set()
+                break;
+        if len(s) > 0 :
+            r.append(s)
+
+    return r
+
+def find_rE(r,points,ec):
+    s=set()
+    for pt in points[1:]:
+       s.add(ec.multiply(pt, r))
+    return s
+
+def print_element_order(points,ec):
+    for pt in points:
+        pts = []
+        for i in range(1, len(points)):
+            new_pt = ec.multiply(pt, i)
+            if new_pt is None:
+                break
+            pts.append(new_pt)
+        print('{} order(r)={}, element={}'.format(pt,i, pts))
+
 def subgroups(pt,ec, order_size):
     pts = []
     pts.append((0, 0))
@@ -23,6 +54,29 @@ def find_k(q, r):
             # print('r=', r, ' k=', k)
             # break
 
+def find_r_torsion(points, ec, candidate_r):
+    results = []
+    s = set()
+    for r in candidate_r:
+        for pt in points[1:]:
+            sub_group = []
+            for i in range(1,len(points)+1,1):
+                try:
+                    e = ec.multiply(pt, i)
+                    if e == None and i == r:
+                        # sub_group.append(pt)
+                        break
+                    else:
+                        sub_group.append(e)
+                except:
+                    #print(pt, i, 'err')
+                    break;
+            if len(sub_group) + 1 == r:
+                s.add(r)
+                # print('r=', r, ':', sub_group)
+                results.append({'r':r, 'e':sub_group})
+    return s, results
+
 def find_r(points, ec, candidate_r):
     results = []
     for r in candidate_r:
@@ -36,6 +90,7 @@ def find_r(points, ec, candidate_r):
                 except:
                     #print(pt, i, 'err')
                     break;
+        print(sub_group)
         if len(sub_group) + 1 == r:
             print('r=', r, sub_group)
             results.append(r)
@@ -496,6 +551,12 @@ def p62():
     print('points : ', points)
     print('order : ', len(points))
     print('----')
+    candidate_r = int_divisor(len(points))
+    # 맞는것지 아직은 미지수
+    rs = find_r(points,ec, candidate_r)
+    r = rs[0]
+    print('k=', find_k(q,r))
+    print('----')
     field = PolyField([2, 0, 0, 0, 0, 0, 1], q)
     ec = FEC([72, 0, 0, 1], q, field)
     print(subgroups(([0, 0, 0, 0, 35, 0], [0, 0, 0, 42, 0, 0]), ec, 7))
@@ -507,6 +568,13 @@ def p62():
     print('points : ', points)
     print('order : ', len(points))
     print(subgroups((33,19), ec, 7))
+    print('----')
+    candidate_r = int_divisor(len(points))
+    # 맞는것지 아직은 미지수
+    rs = find_r(points,ec, candidate_r)
+    r = rs[0]
+    print('k=', find_k(q,r))
+    print('----')
 
     print('psi_inv')
     def psi_inv(pt):
@@ -532,4 +600,179 @@ def p62():
     print('(76,84):')
     print(psi((76,84)))
 
-p62()
+def p68():
+    print(inspect.stack()[0][3], '>>>>>')
+    q = mod = 23
+    ec = FEC([6, 17, 0, 1], q)
+    points = ec.find_point(make_field(q))
+    print('points : ', points)
+    print('order : ', len(points))
+    print('----')
+    print(subgroups((10,7), ec, q))
+    # candidate_r = int_divisor(len(points))
+    # # 맞는것지 아직은 미지수
+    # rs = find_r(points,ec, candidate_r)
+    # r = rs[0]
+    # print('k=', find_k(q,r))
+    # print('----')
+    # field = PolyField([2, 0, 0, 0, 0, 0, 1], q)
+    # ec = FEC([72, 0, 0, 1], q, field)
+    # print(subgroups(([0, 0, 0, 0, 35, 0], [0, 0, 0, 42, 0, 0]), ec, 7))
+    # print('----')
+    # print('y^2 = x^3 + 72u^6')
+    # # u^6+2=0, u^6 = -2
+    # ec = FEC([72*(-2), 0, 0, 1], q)
+    # points = ec.find_point(make_field(q))
+    # print('points : ', points)
+    # print('order : ', len(points))
+    # print(subgroups((33,19), ec, 7))
+    # print('----')
+    # candidate_r = int_divisor(len(points))
+    # # 맞는것지 아직은 미지수
+    # rs = find_r(points,ec, candidate_r)
+    # r = rs[0]
+    # print('k=', find_k(q,r))
+    # print('----')
+    #
+    # print('psi_inv')
+    # def psi_inv(pt):
+    #     x = field.mul([0, 0, 1], pt[0])
+    #     y = field.mul([0, 0, 0, 1], pt[1])
+    #     return(x,y)
+    #
+    # print('(35u^4,42u^3):')
+    # print(psi_inv(([0, 0, 0, 0, 35, 0], [0, 0, 0, 42, 0, 0])))
+    # print('(65u^4,61u^3):')
+    # print(psi_inv(([0, 0, 0, 0, 65, 0], [0, 0, 0, 61, 0, 0])))
+    # #58u^5+81u^4....
+    # print(psi_inv(([8, 49, 66, 99, 81, 58], [71, 65, 66, 14, 23, 8])))
+    #
+    # print('psi')
+    # def psi(pt):
+    #     x = field.mul( field.inv([0, 0, 1]), pt[0])
+    #     y = field.mul(field.inv([0, 0, 0, 1]), pt[1])
+    #     return(x,y)
+    #
+    # print('(33,19):')
+    # print(psi((33,19)))
+    # print('(76,84):')
+    # print(psi((76,84)))
+
+def p71():
+    print(inspect.stack()[0][3], '>>>>>')
+    q = mod = 5
+    ec = FEC([-3, 0, 0, 1], q)
+    points = ec.find_point(make_field(q))
+    print('points : ', points)
+    print('order : ', len(points))
+    print('----')
+
+    points = ec.find_point(make_a_bi(q,2))
+    print('points : ', points)
+    print('order : ', len(points))
+    print('----')
+
+    rs = find_r_torsion(points, ec, [3])
+    print('r_torsion >>')
+    print('r = ', rs[0])
+    print('coset :')
+    for r in rs[1]:
+        print(r)
+    print('----')
+
+    print('rE>>>')
+    rE = find_rE(3,points,ec)
+    print(rE)
+    print('----')
+
+    print('cosets>>>')
+    subs = find_cosets( list(rE), points, ec)
+    print('cosets number : ', len(subs))
+    print('cosets : ', points)
+    for s in subs:
+        print(s)
+    print('----')
+
+    P1 = (Cpx(i=2, r=0, m=2), Cpx(i=4, r=3, m=2))
+    P2 = (Cpx(i=0, r=4, m=2), Cpx(i=0, r=1, m=2))
+    P3 = (Cpx(i=0, r=3, m=2), Cpx(i=0, r=2, m=2))
+    P4 = (Cpx(i=3, r=0, m=2), Cpx(i=1, r=3, m=2))
+    print('P1-P2=P3-P4')
+    print(ec.add(P1, (P2[0],-P2[1])))
+    print(ec.add(P3, (P4[0],-P4[1])))
+    print('P1-P3=P2-P4')
+    print(ec.add(P1, (P3[0],-P3[1])))
+    print(ec.add(P2, (P4[0],-P4[1])))
+    print('P1-P4=P2-P3')
+    print(ec.add(P1, (P4[0],-P4[1])))
+    print(ec.add(P2, (P3[0],-P3[1])))
+    # print(ec.contain((Cpx(0,2,2),Cpx(3,4,2))))
+
+
+    # H2 = ( Cpx(4,3,2), 0)
+    # H3 = ( Cpx(4,2,2), 0)
+    # H4 = ( Cpx(2,0,2), 0)
+    # P = (Cpx(3, 0, 2), Cpx(2, 0, 2))
+    # print(ec.add(H3, P))
+    # P = (Cpx(4, 0, 2), Cpx(1, 0, 2))
+    # print(ec.add(H3, P))
+    # P = (Cpx(0, 2, 2), Cpx(3, 4, 2))
+    # print(ec.add(H3, P))
+    # print('---------')
+    # P = (Cpx(2, 1, 2), Cpx(0, 1, 2))
+    # print(ec.add(H3, P))
+    # P = (Cpx(1, 0, 2), Cpx(0, 1, 2))
+    # print(ec.add(H3, P))
+    # print('---------')
+    #
+    # P = (Cpx(3, 0, 2), Cpx(2, 0, 2))
+    # print(ec.add(H2, P))
+    # P = (Cpx(4, 0, 2), Cpx(1, 0, 2))
+    # print(ec.add(H2, P))
+    # P = (Cpx(0, 2, 2), Cpx(3, 4, 2))
+    # print(ec.add(H2, P))
+    # print('---------')
+    # P = (Cpx(2, 1, 2), Cpx(0, 1, 2))
+    # print(ec.add(H2, P))
+    # P = (Cpx(1, 0, 2), Cpx(0, 1, 2))
+    # print(ec.add(H2, P))
+    # print('---------')
+    # print(ec.multiply(H3, 2))
+
+    # print("(3, 3)>>>>>>")
+    # print(ec.multiply((3,2), 2))
+    # print(ec.multiply((4,1), 2))
+    # print(ec.multiply((Cpx(0,2,2),Cpx(3,4,2)),2))
+    # print(ec.multiply((Cpx(0,3,2),Cpx(3,1,2)),2))
+    #
+    # print("('0+0i', '0+2i')>>>>>>")
+    # print(ec.multiply((Cpx(2,1,2),Cpx(0,1,2)),2))
+    # print(ec.multiply((Cpx(1,0,2),Cpx(0,1,2)),2))
+    # print(ec.multiply((0,Cpx(0,3,2)),2))
+    # print(ec.multiply((Cpx(2,4,2),Cpx(0,1,2)),2))
+    # print('------')
+    # print(subgroups((Cpx(2,1,2),Cpx(0,1,2)), ec, q))
+
+
+    # print(ec.multiply((Cpx(0,2,2),Cpx(3,4,2)),4))
+    # print(ec.multiply((Cpx(0,2,2),Cpx(3,4,2)),5))
+    # print(ec.multiply((Cpx(0,2,2),Cpx(3,4,2)),6))
+    # ec = FEC([-3, 0, 0, 1], q)
+    # points = ec.find_point(make_a_bi(q))
+    # print('points : ', points)
+    # print('order : ', len(points))
+    # print('----')
+    # field = PolyField([2,4,1], mod)
+    # print(field.elements())
+    # ec = FEC([-3, 0, 0, 1], q, field)
+    # points = ec.find_point2(field)
+    # print('points : ', points)
+    # print('order : ', len(points))
+    # f_11_3 = field.elements()
+    # candidate_r = int_divisor(len(points))
+    # print(candidate_r)
+    # rs = find_r(points, ec, candidate_r)
+    # print(rs)
+    # print(subgroups((3,2j), ec, q))
+
+p71()
