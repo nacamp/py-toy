@@ -30,7 +30,7 @@ def mul_inverse_mod(n, p):
     if n == 0:
         raise ZeroDivisionError('division by zero')
     gcd, x, y = xgcd(n, p)
-    assert (n * x + p * y) % p == gcd
+    # assert (n * x + p * y) % p == gcd
     # (n * x) % p == 1.
 
     if gcd != 1:
@@ -273,10 +273,10 @@ def make_a_bi(mod, multiple=1):
 
 # Complex
 class Cpx:
-    def __init__(self, r=0, i=0, multiple=1):
+    def __init__(self, r=0, i=0, m=1):
         self.r = r
         self.i = i
-        self.m = multiple
+        self.m = m
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
@@ -331,19 +331,16 @@ class Cpx:
         else:
             return self.i == 0 and self.r == other
 
+    def __hash__(self):
+        return hash(self.__repr__())
+
     def __repr__(self):
-        m = '{}+{}i'.format(self.r, self.i)
+        if self.i == 0:
+            return repr(self.r)
+        if self.r == 0:
+            return repr('{}i'.format(self.i))
+        m = '{}i+{}'.format(self.i, self.r)
         return repr(m)
 
     def ineg(self):
         return Cpx(self.r, (-1)*self.i, self.m)
-
-
-# /*
-# a=complex(1+1j)
-# pow(a,2)
-# 2j
-# pow(a,3)
-# (-2+2j)
-# a**3
-# (-2+2j)
