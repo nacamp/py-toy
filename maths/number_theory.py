@@ -112,11 +112,23 @@ class PolyField():
         return [sum(x) % self.mod for x in itertools.zip_longest(a, b, fillvalue=0)]
 
     def sub(self, a, b):
+        if isinstance(a, int):
+            a = [a]
+        if isinstance(b, int):
+            b = [b]
         aa = list(a[:])
         bb = list(b[:])
-        for i, c in enumerate(aa):
+        for i in range(max(len(aa), len(bb))):
+            if len(aa) == i :
+                aa.append(0)
+            if len(bb) == i :
+                bb.append(0)
             aa[i] = (aa[i] - bb[i]) % self.mod
         return aa
+
+        # for i, c in enumerate(aa):
+        #     aa[i] = (aa[i] - bb[i]) % self.mod
+        # return aa
 
     @staticmethod
     def neg(a):

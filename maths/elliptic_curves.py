@@ -133,6 +133,39 @@ def find_point_in_curve2(coefficients, mod, ef):
 #         newy = newy % mod
 #     return newx, newy
 
+def finite_slope(p1, p2, a, mod):
+    if p1 is None or p2 is None:
+        return p1 if p2 is None else p2
+    x1, y1 = p1
+    x2, y2 = p2
+    if x2 == x1 and y2 == y1:
+        y_2 = 2 * y1
+        if y_2 == 0:
+            return None
+        if isinstance(y_2, Cpx):
+            l = (3 * x1 ** 2 + a) * y_2.ineg() * mul_inverse_mod((y_2 * y_2.ineg()).r, mod)
+            # 이곳에서 %를 안해주면 결과값이 다르게 나올수 있다?
+            l = l % mod
+            # l = (3 * x ** 2 + a) * complex(y2.real, -y2.imag) * mul_inverse_mod((y2 * complex(y2.real, -y2.imag)).real, mod)
+            # 이곳에서 %를 안해주면 결과값이 다르게 나올수 있다?
+            # l = complex(l.real % mod, l.imag % mod)
+        else:
+            l = (3 * x1 ** 2 + a) * mul_inverse_mod(y_2, mod)
+        return l % mod
+    elif x2 == x1:
+        return None
+    else:
+        x_21 = x2 - x1
+        try:
+            if isinstance(x_21, Cpx):
+                # l = ((y2 - y1)*(x21.real, -x21.imag)) / (x21*(x21.real, -x21.imag))
+                l = ((y2 - y1) * x_21.ineg()) * mul_inverse_mod((x_21 *  x_21.ineg()).r, mod)
+            else:
+                l = (y2 - y1) * mul_inverse_mod(x_21, mod)
+            return l % mod
+        except (ValueError, ZeroDivisionError):
+            return None
+
 def finite_double(pt, a, mod):
     x, y = pt
     y2 = 2 * y
@@ -448,6 +481,77 @@ class FEC():
             return new_points
         else:
             pass
+
+def miller(P, Q, r, ec):
+    if isinstance(Q[0], tuple) or isinstance(Q[0], list):
+        return _poly_miller(P, Q, r, ec)
+    return _finite_miller(P, Q, r, ec)
+
+def _poly_miller(P, Q, r, ec):
+    T = P
+    f = 1
+    for i in range(len(r) - 2, -1, -1):
+        a = finite_slope(T, T, ec.coefficients[1], ec.mod)
+        # y = ax+b, y-ax-b=0  y-ax = b
+        b = T[1] - a * T[0]
+        field = ec.poly_field
+        l_rr = field.sub(field.sub(Q[1],  field.mul(a,Q[0])), b)
+        v_2r = field.sub(Q[0],T[0])
+        print('y+{}x+{}'.format((-a) % ec.mod, (-b) % ec.mod))
+        print('x+{}'.format((-T[0]) % ec.mod))
+
+        if isinstance(f, int):
+            f = [f]
+        f = field.mul(field.mul(field.mul(f,f),l_rr), field.inv(v_2r))
+        T = ec.add(T,T)
+        print('T:', T)
+
+        if r[i] == 1:
+            a = finite_slope(T, P, ec.coefficients[1], ec.mod)
+            if a == None:
+                pass
+                # print( field.mul(f, field.sub(Q[0], T[0])) )
+                # v_2r = Q[0] - T[0]
+                # f = f * v_2r
+            else:
+                # y = ax+b, y-ax-b=0  y-ax = b
+                b = T[1] - a * T[0]
+                l_tp = field.sub(field.sub(Q[1], field.mul(a, Q[0])), b)
+                v_tp = field.sub(Q[0], T[0])
+                f = field.mul(field.mul(f, l_tp), field.inv(v_tp))
+                T = ec.add(T, P)
+    return f
+
+
+def _finite_miller(P, Q, r, ec):
+    T = P
+    f = 1
+    for i in range(len(r) - 2, -1, -1):
+        a = finite_slope(T, T, ec.coefficients[1], ec.mod)
+        # y = ax+b, y-ax-b=0  y-ax = b
+        b = T[1] - a * T[0]
+        l_tt = Q[1] - a*Q[0] - b
+        v_2t = Q[0] - T[0]
+        f = f * f * l_tt * v_2t.ineg() * inv((v_2t*v_2t.ineg()).r, ec.mod)
+        T = ec.add(T,T)
+
+        if r[i] == 1:
+            a = finite_slope(T, P, ec.coefficients[1], ec.mod)
+            if a == None:
+                pass
+                # v_2r = Q[0] - T[0]
+                # f = f * v_2r
+            else:
+                # y = ax+b, y-ax-b=0  y-ax = b
+                b = T[1] - a * T[0]
+                l_tp = Q[1] - a * Q[0] - b
+                v_tp = Q[0] - T[0]
+                f = f * l_tp * v_tp.ineg() * inv((v_tp * v_tp.ineg()).r, ec.mod)
+                T = ec.add(T, P)
+
+    return f % ec.mod
+
+
 '''
 itertools.zip_longest(*iterables, fillvalue=None)
 출처: https://excelsior-cjh.tistory.com/100 [EXCELSIOR]
