@@ -1,6 +1,7 @@
 import itertools
 import math
 
+
 def int_divisor(a):
     results = []
     for i in range(2, a + 1):
@@ -47,6 +48,25 @@ inv = mul_inverse_mod
 
 ##### polynomial operation #####
 class PolyField():
+    @staticmethod
+    def neg(a):
+        return [x * (-1) for x in a]
+
+    @staticmethod
+    def printPoint(a):
+        for i, c in enumerate( reversed(a[0])):
+            if i == len(a[0])-1 :
+                print('{}'.format(c, len(a[0])-i-1), end='')
+            else:
+                print('{}u^{} + '.format(c, len(a[0]) - i - 1), end='')
+        print(' , ', end='')
+        for i, c in enumerate( reversed(a[1])):
+            if i == len(a[1])-1 :
+                print('{}'.format(c, len(a[1])-i-1), end='')
+            else:
+                print('{}u^{} + '.format(c, len(a[1]) - i - 1), end='')
+        print('')
+
     def __init__(self, irr_coef, mod):
         self.coef = irr_coef
         self.mod = mod
@@ -66,7 +86,38 @@ class PolyField():
         r = [sum(x) for x in itertools.zip_longest(*r, fillvalue=0)]
         return r
 
+    def _mul_coef(self, a, b):
+        aa = list(a[:])
+        bb = list(b[:])
+        while aa[-1] == 0:
+            aa.pop()
+        while bb[-1] == 0:
+            aa.pop()
+        r = [0] * (len(aa) + len(bb) - 1)
+        for i, c in enumerate(bb):
+            for j in range(len(aa)):
+                r[i + j] += c * aa[j]
+        return r
+
+    def _mul_v2(self, a, b):
+        irr_len = len(self.irr_coef)
+        overed_coef = self._mul_coef(a, b)
+        coef = overed_coef[0:irr_len]
+        l = len(overed_coef)
+        while l > irr_len:
+            overed_coef = self._mul_coef(self.irr_coef, overed_coef[irr_len:])
+            l = len(overed_coef)
+            coef = [sum(x) for x in itertools.zip_longest(overed_coef[0:irr_len],coef, fillvalue=0) ]
+        return ([x % self.mod for x in coef])
+
     def mul(self, a, b):
+        if isinstance(a, int):
+            return [x * a % self.mod for x in b]
+        if isinstance(b, int):
+            return [x * b % self.mod for x in a]
+        return self._mul_v2(a,b)
+
+    def _mul_v1(self, a, b):
         if isinstance(a, int):
             return [x * a % self.mod for x in b]
         if isinstance(b, int):
@@ -85,6 +136,7 @@ class PolyField():
             r.append([x * c for x in aa])
         # print(r)
         r = [sum(x) for x in itertools.zip_longest(*r, fillvalue=0)]
+        # print(r)
         low_coefs.append(r[0:irr_len])
 
         # 초과 deg실행
@@ -129,14 +181,6 @@ class PolyField():
         # for i, c in enumerate(aa):
         #     aa[i] = (aa[i] - bb[i]) % self.mod
         # return aa
-
-    @staticmethod
-    def neg(a):
-        return [x * (-1) for x in a]
-
-    # @staticmethod
-    # def neg(c, a):
-    #     return [x * c for x in a]
 
     def poly_round_div(self, numerator, denominator):
         # a//b
@@ -358,30 +402,32 @@ class Cpx:
     def ineg(self):
         return Cpx(self.r, (-1) * self.i, self.m)
 
-#https://gist.github.com/dzhou/2632362
-#https://ratsgo.github.io/data%20structure&algorithm/2017/10/07/prime/
+
+# https://gist.github.com/dzhou/2632362
+# https://ratsgo.github.io/data%20structure&algorithm/2017/10/07/prime/
 def prime_sieve(sieveSize):
     # creating Sieve (0~n까지의 slot)
-    sieve = [True] * (sieveSize+1)
+    sieve = [True] * (sieveSize + 1)
     # 0과 1은 소수가 아니므로 제외
     sieve[0] = False
     sieve[1] = False
     # 2부터 (루트 n) + 1까지의 숫자를 탐색
-    for i in range(2,int(math.sqrt(sieveSize))+1):
+    for i in range(2, int(math.sqrt(sieveSize)) + 1):
         # i가 소수가 아니면 pass
         if sieve[i] == False:
             continue
         # i가 소수라면 i*i~n까지 숫자 가운데 i의 배수를
         # 소수에서 제외
-        for pointer in range(i**2, sieveSize+1, i):
+        for pointer in range(i ** 2, sieveSize + 1, i):
             sieve[pointer] = False
     primes = []
     # sieve 리스트에서 True인 것이 소수이므로
     # True인 값의 인덱스를 결과로 저장
-    for i in range(sieveSize+1):
+    for i in range(sieveSize + 1):
         if sieve[i] == True:
             primes.append(i)
     return primes
+
 
 # 소인수분해, prime factorization
 def get_prime_factors(n):
