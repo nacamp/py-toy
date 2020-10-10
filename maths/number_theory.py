@@ -89,10 +89,10 @@ class PolyField():
     def _mul_coef(self, a, b):
         aa = list(a[:])
         bb = list(b[:])
-        while aa[-1] == 0:
+        while len(aa) > 0 and aa[-1] == 0:
             aa.pop()
-        while bb[-1] == 0:
-            aa.pop()
+        while len(bb) > 0 and bb[-1] == 0:
+            bb.pop()
         r = [0] * (len(aa) + len(bb) - 1)
         for i, c in enumerate(bb):
             for j in range(len(aa)):
@@ -101,13 +101,13 @@ class PolyField():
 
     def _mul_v2(self, a, b):
         irr_len = len(self.irr_coef)
-        overed_coef = self._mul_coef(a, b)
-        coef = overed_coef[0:irr_len]
-        l = len(overed_coef)
+        over_coef = self._mul_coef(a, b)
+        coef = over_coef[0:irr_len]
+        l = len(over_coef)
         while l > irr_len:
-            overed_coef = self._mul_coef(self.irr_coef, overed_coef[irr_len:])
-            l = len(overed_coef)
-            coef = [sum(x) for x in itertools.zip_longest(overed_coef[0:irr_len],coef, fillvalue=0) ]
+            over_coef = self._mul_coef(self.irr_coef, over_coef[irr_len:])
+            l = len(over_coef)
+            coef = [sum(x) for x in itertools.zip_longest(over_coef[0:irr_len],coef, fillvalue=0) ]
         return ([x % self.mod for x in coef])
 
     def mul(self, a, b):
@@ -212,17 +212,17 @@ class PolyField():
         while sum(r) != 0:
             quotient = self.poly_round_div(old_r, r)
             old_r, r = r, [sum(x) % self.mod for x in
-                           itertools.zip_longest(old_r, [x * (-1) for x in self.poly_mul2(quotient, r)], fillvalue=0)]
+                           itertools.zip_longest(old_r, [x * (-1) for x in self._mul_coef(quotient, r)], fillvalue=0)]
             old_s, s = s, [sum(x) % self.mod for x in
-                           itertools.zip_longest(old_s, [x * (-1) for x in self.poly_mul2(quotient, s)], fillvalue=0)]
+                           itertools.zip_longest(old_s, [x * (-1) for x in self._mul_coef(quotient, s)], fillvalue=0)]
             old_t, t = t, [sum(x) % self.mod for x in
-                           itertools.zip_longest(old_t, [x * (-1) for x in self.poly_mul2(quotient, t)], fillvalue=0)]
+                           itertools.zip_longest(old_t, [x * (-1) for x in self._mul_coef(quotient, t)], fillvalue=0)]
             while len(r) and r[-1] == 0:
                 r.pop()
         # old_r[0]이 1이 아닌경우는 old_r[0]으로 나눠야 한다.
         old_s_inv = mul_inverse_mod(old_r[0], self.mod)
         # result = [ x % 3 for x in self.poly_mul2(old_s, [old_s_inv])]
-        result = [x % self.mod for x in self.poly_mul2(old_s, [old_s_inv])]
+        result = [x % self.mod for x in self._mul_coef(old_s, [old_s_inv])]
         return result + ([0] * (len(self.irr_coef) - len(result)))
 
     def elements(self):
