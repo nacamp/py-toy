@@ -24,7 +24,3 @@ doc.SaveAs(out_file, FileFormat=wdFormatPDF)
 doc.Close()
 word.Quit()
 print("time :", time.time() - start)
-
-print('test...')
-print('test...')
-print('test...')
