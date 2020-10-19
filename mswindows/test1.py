@@ -1,10 +1,5 @@
 '''
-https://stackoverflow.com/questions/6011115/doc-to-pdf-using-python
-https://github.com/AlJohri/docx2pdf
-https://pypi.org/project/comtypes/
-python \\tsclient\rdp_share\doc2pdf.py
-t2-medium : 2cpu-4G
-4장워드 12초
+
 time : 2.2505595684051514
 time : 12.719176530838013
 time : 21.030635595321655
