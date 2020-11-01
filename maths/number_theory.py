@@ -1,8 +1,10 @@
 import itertools
 import math
 
+
 def lcm(a, b):
     return a * b / math.gcd(a, b)
+
 
 def int_divisor(a):
     results = []
@@ -56,15 +58,15 @@ class PolyField():
 
     @staticmethod
     def printPoint(a):
-        for i, c in enumerate( reversed(a[0])):
-            if i == len(a[0])-1 :
-                print('{}'.format(c, len(a[0])-i-1), end='')
+        for i, c in enumerate(reversed(a[0])):
+            if i == len(a[0]) - 1:
+                print('{}'.format(c, len(a[0]) - i - 1), end='')
             else:
                 print('{}u^{} + '.format(c, len(a[0]) - i - 1), end='')
         print(' , ', end='')
-        for i, c in enumerate( reversed(a[1])):
-            if i == len(a[1])-1 :
-                print('{}'.format(c, len(a[1])-i-1), end='')
+        for i, c in enumerate(reversed(a[1])):
+            if i == len(a[1]) - 1:
+                print('{}'.format(c, len(a[1]) - i - 1), end='')
             else:
                 print('{}u^{} + '.format(c, len(a[1]) - i - 1), end='')
         print('')
@@ -109,7 +111,7 @@ class PolyField():
         while l > irr_len:
             over_coef = self._mul_coef(self.irr_coef, over_coef[irr_len:])
             l = len(over_coef)
-            coef = [sum(x) for x in itertools.zip_longest(over_coef[0:irr_len],coef, fillvalue=0) ]
+            coef = [sum(x) for x in itertools.zip_longest(over_coef[0:irr_len], coef, fillvalue=0)]
         return ([x % self.mod for x in coef])
 
     def mul(self, a, b):
@@ -117,7 +119,7 @@ class PolyField():
             return [x * a % self.mod for x in b]
         if isinstance(b, int):
             return [x * b % self.mod for x in a]
-        return self._mul_v2(a,b)
+        return self._mul_v2(a, b)
 
     def _mul_v1(self, a, b):
         if isinstance(a, int):
@@ -203,7 +205,7 @@ class PolyField():
     https://math.stackexchange.com/questions/124300/finding-inverse-of-polynomial-in-a-field
     '''
 
-    def inv(self, a):
+    def xgcd(self, a):
         """
         a * x + b * y = gcd
         """
@@ -221,11 +223,44 @@ class PolyField():
                            itertools.zip_longest(old_t, [x * (-1) for x in self._mul_coef(quotient, t)], fillvalue=0)]
             while len(r) and r[-1] == 0:
                 r.pop()
-        # old_r[0]이 1이 아닌경우는 old_r[0]으로 나눠야 한다.
-        old_s_inv = mul_inverse_mod(old_r[0], self.mod)
+        return old_r, old_s, old_t
+        # # old_r[0]이 1이 아닌경우는 old_r[0]으로 나눠야 한다.
+        # old_s_inv = mul_inverse_mod(old_r[0], self.mod)
+        # # result = [ x % 3 for x in self.poly_mul2(old_s, [old_s_inv])]
+        # result = [x % self.mod for x in self._mul_coef(old_s, [old_s_inv])]
+        # return result + ([0] * (len(self.irr_coef) - len(result)))
+
+    def inv(self, a):
+        gcd, s, t = self.xgcd(a)
+        # gcd[0]이 1이 아닌경우는 old_r[0]으로 나눠야 한다.
+        s_inv = mul_inverse_mod(gcd[0], self.mod)
         # result = [ x % 3 for x in self.poly_mul2(old_s, [old_s_inv])]
-        result = [x % self.mod for x in self._mul_coef(old_s, [old_s_inv])]
+        result = [x % self.mod for x in self._mul_coef(s, [s_inv])]
         return result + ([0] * (len(self.irr_coef) - len(result)))
+
+    # def inv(self, a):
+    #     """
+    #     a * x + b * y = gcd
+    #     """
+    #     s, old_s = [0], [1]
+    #     t, old_t = [1], [0]
+    #     r, old_r = self.coef, a
+    #
+    #     while sum(r) != 0:
+    #         quotient = self.poly_round_div(old_r, r)
+    #         old_r, r = r, [sum(x) % self.mod for x in
+    #                        itertools.zip_longest(old_r, [x * (-1) for x in self._mul_coef(quotient, r)], fillvalue=0)]
+    #         old_s, s = s, [sum(x) % self.mod for x in
+    #                        itertools.zip_longest(old_s, [x * (-1) for x in self._mul_coef(quotient, s)], fillvalue=0)]
+    #         old_t, t = t, [sum(x) % self.mod for x in
+    #                        itertools.zip_longest(old_t, [x * (-1) for x in self._mul_coef(quotient, t)], fillvalue=0)]
+    #         while len(r) and r[-1] == 0:
+    #             r.pop()
+    #     # old_r[0]이 1이 아닌경우는 old_r[0]으로 나눠야 한다.
+    #     old_s_inv = mul_inverse_mod(old_r[0], self.mod)
+    #     # result = [ x % 3 for x in self.poly_mul2(old_s, [old_s_inv])]
+    #     result = [x % self.mod for x in self._mul_coef(old_s, [old_s_inv])]
+    #     return result + ([0] * (len(self.irr_coef) - len(result)))
 
     def elements(self):
         irr_len = len(self.irr_coef)
@@ -257,6 +292,22 @@ class PolyField():
             x = self.mul(x, a)
         return (x)
 
+    #https://jeremykun.com/2014/03/13/programming-with-finite-fields/
+    #https://www.wolframalpha.com/input/?i=IrreduciblePolynomialQ%5B%7Bx%5E3%2Bx%5E2%2B3x%2B1%7D%2CModulus-%3E5%5D
+    #https://math.stackexchange.com/questions/106721/product-of-all-monic-irreducibles-with-degree-dividing-n-in-mathbbf-q/106732#106732
+    def is_irreducible(self):
+        # x^p^k -x
+        for i in range(1, len(self.coef)-1):
+            _x = [0] + [0] * pow(self.mod, i)
+            _x[-1] = 1
+            _x[1] = -1
+            # print(_x)
+            g, x, y = self.xgcd(_x)
+            if len(g) != 0:
+                return False
+            # print(g, x, y)
+        return True
+
 def solve_poly(coef, x):
     return sum(c * x ** i for i, c in enumerate(coef))
 
@@ -286,6 +337,7 @@ def make_extension_field(irr_coef, mod):
 
 def make_field(mod):
     return [i for i in range(mod)]
+
 
 def make_a_bi(mod, multiple=1):
     ef = []
@@ -429,8 +481,8 @@ def qr(x_2, mod):
             results.append(x)
     return results
 
-def modular_sqrt(a, p):
 
+def modular_sqrt(a, p):
     def legendre_symbol(a, p):
         """ Compute the Legendre symbol a|p using
             Euler's criterion. p is a prime, a is
