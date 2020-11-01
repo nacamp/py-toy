@@ -17,8 +17,7 @@ class TestPolyField(unittest.TestCase):
         # x^3+2x+1 역순
         field = PolyField([1,2,0,1], 3)
         self.assertEqual(field.inv([1,0,1]), [2,1,2])
-
-        print(inv(44,59))
+        # print(inv(44,59))
 
     def test_elements(self):
         # x^3+2x+1 역순
@@ -47,6 +46,13 @@ class TestPolyField(unittest.TestCase):
                 continue
             self.assertEqual(field.inv(f_3_3[i]), f_3_3[26 - i] )
 
+    def test_is_irreducible(self):
+        # x^3+2x+1=0
+        field = PolyField([1,3,1,1], 5)
+        self.assertEqual(field.is_irreducible(), False)
+
+
+class TestCpx(unittest.TestCase):
     def test_Cpx(self):
         c = Cpx(1, 2)
         self.assertEqual(c.r, 1)
